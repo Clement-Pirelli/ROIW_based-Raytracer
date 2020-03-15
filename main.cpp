@@ -1,5 +1,7 @@
 #include "BMPWriter.h"
 #include <iostream>
+#include <string>
+#include <algorithm>
 #include "ray.h"
 #include "Sphere.h"
 #include "HitableList.h"
@@ -15,10 +17,11 @@
 #include "ConstantMedium.h"
 #include "Rectangle.h"
 #include "FlipNormals.h"
+#include "ModelLoader.h"
 
 #pragma warning(disable : 6385)
 
-constexpr int maxBounces = 10;
+constexpr int maxBounces = 5;
 
 
 struct PathTracerConfig
@@ -72,7 +75,9 @@ public:
 		config.tileCounter = 0;
 
 		image = new color[(size_t)config.xDim * config.yDim];
-		world = cornellBox(config);
+
+		world = teapot(config);
+
 		Logger::LogMessage("Path tracer successfully initialized!");
 
 		if (config.renderingToScreen) screen = new RenderToScreen(image, config.xDim, config.yDim);
@@ -115,8 +120,17 @@ public:
 
 		Logger::LogMessageFormatted("Raytracing done in %u milliseconds (%u seconds)\nThank you! for your time!", time, time/1000);
 
+		//get the current date at the right format to save it
+		time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		char str[26];
+		ctime_s(str, sizeof str, &t);
+		std::string timeStr = std::string(str);
+		std::replace(timeStr.begin(), timeStr.end(), ' ', '_');
+		std::replace(timeStr.begin(), timeStr.end(), ':', '_');
+		std::replace(timeStr.begin(), timeStr.end(), '\n', '_');
+
 		//output final image to .bmp
-		writeBMP("output.bmp", uint32_t(config.xDim), uint32_t(config.yDim), image);
+		writeBMP((std::string("output/RaytracerOutput") + timeStr + std::string(".bmp")).c_str(), uint32_t(config.xDim), uint32_t(config.yDim), image);
 
 		//wait for the user to dismiss the window
 		if (config.renderingToScreen) screen->handleMessagesBlocking();
@@ -200,8 +214,6 @@ private:
 		config.distanceToFocus = 10.0f;
 		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 90.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
 
-
-
 		return new BvhNode(list, i);
 	}
 
@@ -229,6 +241,17 @@ private:
 		return new BvhNode(list, 7);
 	}
 
+	static Hitable *teapot(PathTracerConfig &config)
+	{
+		config.lookAt = vec3(20.0f, 20.0f, .0f);
+		config.lookFrom = vec3(20.0f, 100.0f, -100.0f);
+		config.aperture = 1.0f;
+		config.distanceToFocus = 100.0f;
+		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 90.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
+
+		return ModelLoader::loadModel("_assets/teapot.obj", new Dielectric(1.5f));
+	}
+
 	void updateScreen(PathTracerConfig *config)
 	{
 		if (config->renderingToScreen)
@@ -243,7 +266,7 @@ private:
 		float t = .5f * (currentRay.direction.y + 1.0f);
 		vec3 white = vec3(1.0f, 1.0f, 1.0f);
 		vec3 blue = vec3(.5f, .7f, 1.0f);
-		return vec3::lerp(white, blue,t);
+		return vec3::lerp(white, blue, t);
 	}
 
 	static vec3 sceneColor(const ray &currentRay, Hitable *world, int depth = 0)
@@ -255,6 +278,7 @@ private:
 			vec3 attenuation;
 			ray scatteredRay;
 			vec3 emitted = record.material->emitted(record.u, record.v, record.point);
+
 			if (depth < maxBounces && record.material->scatter(currentRay, record, attenuation, scatteredRay))
 			{
 				return emitted + attenuation * sceneColor(scatteredRay, world, depth + 1);

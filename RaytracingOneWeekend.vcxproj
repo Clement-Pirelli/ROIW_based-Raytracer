@@ -152,9 +152,11 @@
     <ClCompile Include="HitableList.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="RenderToScreen.cpp" />
     <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -174,12 +176,15 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Metal.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="randUtils.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="RenderToScreen.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="tiny_obj_loader.h" />
+    <ClInclude Include="Triangle.h" />
     <ClInclude Include="vec3.h" />
     <ClInclude Include="Volume.h" />
   </ItemGroup>

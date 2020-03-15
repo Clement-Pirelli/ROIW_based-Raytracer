@@ -11,7 +11,7 @@ public:
 	virtual bool scatter(const ray &inRay, const hitRecord &record, vec3 &attenuation, ray &scatteredRay) const override
 	{
 		vec3 reflected = vec3::reflect(inRay.direction, record.normal);
-		scatteredRay = ray(record.point, reflected + randInUnitSphere()* fuzziness);
+		scatteredRay = ray(record.point, (reflected + randInUnitSphere()* fuzziness).normalized());
 		attenuation = albedo;
 		return vec3::dot(scatteredRay.direction, record.normal) > .0f;
 	}
