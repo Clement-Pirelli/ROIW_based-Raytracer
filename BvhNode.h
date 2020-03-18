@@ -93,4 +93,4 @@ public:
 	AABB box;
 };
 
-#endif // !DIELECTRIC_MATERIAL_H_DEFINED
+#endif // !BVH_NODE_H_DEFINED

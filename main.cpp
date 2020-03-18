@@ -243,13 +243,13 @@ private:
 
 	static Hitable *teapot(PathTracerConfig &config)
 	{
-		config.lookAt = vec3(20.0f, 20.0f, .0f);
-		config.lookFrom = vec3(20.0f, 100.0f, -100.0f);
-		config.aperture = 1.0f;
-		config.distanceToFocus = 100.0f;
+		config.lookAt = vec3(.2f, .2f, .0f);
+		config.lookFrom = vec3(-.3f, .6f, -.5f);
+		config.aperture = .0f;
+		config.distanceToFocus = .4f;
 		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 90.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
 
-		return ModelLoader::loadModel("_assets/teapot.obj", new Dielectric(1.5f));
+		return ModelLoader::loadModel("_assets/dragon.obj", new Lambertian(new FlatTexture(vec3(1.0f,.4f,.4f))));
 	}
 
 	void updateScreen(PathTracerConfig *config)

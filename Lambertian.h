@@ -11,7 +11,7 @@ public:
 
 	virtual bool scatter(const ray &inRay, const hitRecord &record, vec3 &attenuation, ray &scatteredRay) const override 
 	{
-		vec3 target = record.normal + randInUnitSphere();
+		vec3 target = mapRectToCosineHemisphere(record.normal, drand48(), drand48());
 		scatteredRay = ray(record.point, target);
 		attenuation = albedo->valueAt(0.0f,.0f,record.point);
 		return true;
