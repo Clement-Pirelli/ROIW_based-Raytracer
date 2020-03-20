@@ -4,8 +4,8 @@
 #include <algorithm>
 #include "ray.h"
 #include "Sphere.h"
-#include "HitableList.h"
 #include "randUtils.h"
+#include "Randomizer.h"
 #include "AllMaterials.h"
 #include "Camera.h"
 #include <thread>
@@ -18,10 +18,12 @@
 #include "Rectangle.h"
 #include "FlipNormals.h"
 #include "ModelLoader.h"
+#include "ImageTexture.h"
+#include "ImageLoader.h"
 
 #pragma warning(disable : 6385)
 
-constexpr int maxBounces = 5;
+constexpr int maxBounces = 10;
 
 
 struct PathTracerConfig
@@ -76,7 +78,9 @@ public:
 
 		image = new color[(size_t)config.xDim * config.yDim];
 
-		world = teapot(config);
+		world = triangleScene(config);
+
+		Randomizer::createRandom(config.samples);
 
 		Logger::LogMessage("Path tracer successfully initialized!");
 
@@ -241,15 +245,15 @@ private:
 		return new BvhNode(list, 7);
 	}
 
-	static Hitable *teapot(PathTracerConfig &config)
+	static Hitable *triangleScene(PathTracerConfig &config)
 	{
-		config.lookAt = vec3(.2f, .2f, .0f);
-		config.lookFrom = vec3(-.3f, .6f, -.5f);
+		config.lookAt = vec3(.0f, 8.0f, .0f);
+		config.lookFrom = vec3(-5.0f, 12.0f, -7.0f).rotateY(6.283272f * -.5f);
 		config.aperture = .0f;
 		config.distanceToFocus = .4f;
 		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 90.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
 
-		return ModelLoader::loadModel("_assets/dragon.obj", new Lambertian(new FlatTexture(vec3(1.0f,.4f,.4f))));
+		return ModelLoader::loadModel("_assets/robot.obj", new Lambertian(new ImageTexture("_assets/robot.jpg")));
 	}
 
 	void updateScreen(PathTracerConfig *config)
@@ -269,7 +273,7 @@ private:
 		return vec3::lerp(white, blue, t);
 	}
 
-	static vec3 sceneColor(const ray &currentRay, Hitable *world, int depth = 0)
+	static vec3 sceneColor(const ray &currentRay, Hitable *world, float r1, float r2, int depth = 0)
 	{
 		hitRecord record;
 
@@ -279,9 +283,9 @@ private:
 			ray scatteredRay;
 			vec3 emitted = record.material->emitted(record.u, record.v, record.point);
 
-			if (depth < maxBounces && record.material->scatter(currentRay, record, attenuation, scatteredRay))
+			if (depth < maxBounces && record.material->scatter(currentRay, record, attenuation, scatteredRay, r1, r2))
 			{
-				return emitted + attenuation * sceneColor(scatteredRay, world, depth + 1);
+				return emitted + attenuation * sceneColor(scatteredRay, world, r1, r2, depth + 1);
 			}
 			else
 			{
@@ -296,6 +300,10 @@ private:
 
 	void trace(PathTracerConfig *config)
 	{
+		Image blueNoise = ImageLoader::loadImage("_assets/bluenoise.png");
+		float xDimF = float(config->xDim);
+		float yDimF = float(config->yDim);
+
 		while (true)
 		{
 			//get the current tile, add 1 to the counter
@@ -314,13 +322,22 @@ private:
 					{
 						//trace samples, average
 						vec3 col = vec3(.0f, .0f, .0f);
+
+						//blue noise tiling
+						unsigned char *imageVal = blueNoise.atTexel(x, y);
+						float noise1 = float(imageVal[0]) / 255.0f;
+						float noise2 = float(imageVal[1]) / 255.0f;
+
 						for (uint32_t s = 0; s < config->samples; s++)
 						{
-							float u = float(x + drand48()) / float(config->xDim),
-								v = float(y + drand48()) / float(config->yDim);
+							float u = (float(x)+drand48()) / xDimF,
+								v = (float(y)+drand48()) / yDimF;
+
 							ray currentRay = config->camera.getRay(u, v);
 							currentRay.direction.normalize();
-							col += sceneColor(currentRay, world);
+							float _;
+							vec3 sampleRandom = Randomizer::getRandom(s);
+							col += sceneColor(currentRay, world, modf(sampleRandom.x + noise1, &_), modf(sampleRandom.y + noise2, &_));
 						}
 						col /= float(config->samples);
 
@@ -347,6 +364,7 @@ private:
 			}
 			else
 			{
+				ImageLoader::freeImage(blueNoise);
 				return;
 			}
 		}

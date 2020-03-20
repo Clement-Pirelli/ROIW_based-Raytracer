@@ -1,6 +1,9 @@
 #ifndef VEC3_H_DEFINED
 #define VEC3_H_DEFINED
 
+
+#include <math.h>
+
 union vec3
 {
 	vec3() = default;
@@ -21,12 +24,16 @@ union vec3
 	inline float squaredLength() const;
 	void normalize();
 	inline vec3 normalized() const;
+	inline vec3 rotateX(float angle);
+	inline vec3 rotateY(float angle);
+	inline vec3 rotateZ(float angle);
 
 	static float dot(const vec3 &v1, const vec3 &v2);
 	static vec3 cross(const vec3 &v1, const vec3 &v2);
 	static vec3 lerp(const vec3 &v1, const vec3 &v2, float t);
 	static vec3 reflect(const vec3 &incident, const vec3 &normal);
 	static bool refract(const vec3 &incident, const vec3 &normal, float niOverNt, vec3 &refracted);
+	
 
 	struct
 	{
@@ -55,6 +62,21 @@ inline vec3 operator/(const vec3 &v1, float f)
 		v1.x / f,
 		v1.y / f,
 		v1.z / f);
+}
+
+inline vec3 vec3::rotateX(float angle)
+{
+	return vec3(x, y * cosf(angle) - z * sinf(angle), y * sinf(angle) + z * cosf(angle));
+}
+
+inline vec3 vec3::rotateY(float angle)
+{
+	return vec3(x * cosf(angle) + z * sinf(angle), y, -x * sinf(angle) + z * cosf(angle));
+}
+
+inline vec3 vec3::rotateZ(float angle)
+{
+	return vec3(x * cosf(angle) - y * sinf(angle), x * sinf(angle) + y * cosf(angle), z);
 }
 
 #endif

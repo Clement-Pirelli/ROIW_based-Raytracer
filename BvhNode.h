@@ -19,21 +19,19 @@ public:
 			y = 1,
 			z = 2
 		};
-		Axis axis = Axis(int(3.0f*drand48()));
-		
-		//sort the list depending on the random axis
-		std::sort(
-			hitableList,
-			hitableList + hitableAmount,
-			[=](Hitable *left, Hitable *right)->bool
-			{
-				AABB boxLeft, boxRight;
-				if (!left->boundingBox(boxLeft) || !right->boundingBox(boxRight)) 
-					Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
 
-				return (boxLeft.min.e[int(axis)] < boxRight.min.e[int(axis)]);
-			}
-		);
+		Axis axis = Axis(int(drand48() * 2.9999f));
+		auto sortingPredicate = [=](Hitable *left, Hitable *right)->bool
+		{
+			AABB boxLeft, boxRight;
+			if (!left->boundingBox(boxLeft) || !right->boundingBox(boxRight))
+				Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
+
+			return (boxLeft.min[int(axis)] < boxRight.min[int(axis)]);
+		};
+
+		std::sort(hitableList, hitableList + hitableAmount, sortingPredicate);
+
 
 		if(hitableAmount == 1)
 		{
@@ -55,6 +53,8 @@ public:
 			Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
 		box = AABB::unite(boxLeft, boxRight);
 	}
+
+
 
 	virtual bool hit(const ray &givenRay, float minT, float maxT, hitRecord &record) const override
 	{
@@ -88,6 +88,7 @@ public:
 		return true;
 	}
 
+private:
 
 	Hitable *left = nullptr, *right = nullptr;
 	AABB box;

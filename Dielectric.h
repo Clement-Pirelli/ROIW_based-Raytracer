@@ -16,7 +16,7 @@ class Dielectric : public Material
 public:
 	Dielectric(float givenRefractionIndex) : refractionIndex(givenRefractionIndex) {}
 
-	virtual bool scatter(const ray &inRay, const hitRecord &record, vec3 &attenuation, ray &scatteredRay) const override
+	virtual bool scatter(const ray &inRay, const hitRecord &record, vec3 &attenuation, ray &scatteredRay, float firstRandom, float secondRandom) const override
 	{
 		vec3 outwardNormal = {};
 		vec3 reflected = vec3::reflect(inRay.direction, record.normal);

@@ -1,5 +1,4 @@
 #include "vec3.h"
-#include <math.h>
 
 vec3 &vec3::operator+=(const vec3 &other)
 {

@@ -10,7 +10,7 @@ class Volume : public Material
 public:
 	Volume(Texture *givenAlbedo) : albedo(givenAlbedo) {}
 
-	virtual bool scatter(const ray &inRay, const hitRecord &record, vec3 &attenuation, ray &scatteredRay) const override
+	virtual bool scatter(const ray &inRay, const hitRecord &record, vec3 &attenuation, ray &scatteredRay, float firstRandom, float secondRandom) const override
 	{
 		scatteredRay = ray(record.point, randInUnitSphere().normalized());
 		attenuation = albedo->valueAt(record.u, record.v, record.point);
