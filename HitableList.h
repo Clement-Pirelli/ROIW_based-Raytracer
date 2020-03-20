@@ -2,25 +2,24 @@
 #define HITABLELIST_H_DEFINED
 #include "Hitable.h"
 
-template<int Amount>
 class HitableList : public Hitable
 {
+	int amount;
 public:
-	HitableList() : list{} {} 
-	Hitable *list[Amount];
+	HitableList(Hitable **givenList, int givenAmount) : amount(givenAmount), list(givenList) {} 
+	Hitable **list;
 	Hitable *&operator[](int i) { return list[i]; }
 	virtual bool hit(const ray& givenRay, float minT, float maxT, hitRecord& record) const override;
 	virtual bool boundingBox(AABB &aabb) const override;
 };
 
 
-template<int Amount>
-inline bool HitableList<Amount>::hit(const ray& givenRay, float minT, float maxT, hitRecord& record) const
+inline bool HitableList::hit(const ray& givenRay, float minT, float maxT, hitRecord& record) const
 {
 	hitRecord tempRecord;
 	bool hitAnything = false;
 	float closest = maxT;
-	for(int i = 0; i < Amount; i++)
+	for(int i = 0; i < amount; i++)
 	{
 		if(list[i]->hit(givenRay, minT, maxT, tempRecord))
 		{
@@ -35,16 +34,15 @@ inline bool HitableList<Amount>::hit(const ray& givenRay, float minT, float maxT
 	return hitAnything;
 }
 
-template<int Amount>
-inline bool HitableList<Amount>::boundingBox(AABB &aabb) const
+inline bool HitableList::boundingBox(AABB &aabb) const
 {
-	if constexpr (Amount < 1) return false;
+	if (amount < 1) return false;
 	AABB tempBox;
 	bool firstTrue = list[0]->boundingBox(tempBox);
 	
 	if (!firstTrue) return false; else aabb = tempBox;
 
-	for(int i = 1; i < Amount; i++)
+	for(int i = 1; i < amount; i++)
 	{
 		if (list[i]->boundingBox(tempBox))
 		{

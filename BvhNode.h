@@ -8,31 +8,19 @@
 
 class BvhNode : public Hitable
 {
+private:
+	enum class Axis
+	{
+		x = 0,
+		y = 1,
+		z = 2,
+		NONE
+	};
 public:
 
 	BvhNode(){}
-	BvhNode(Hitable **hitableList, int hitableAmount)
+	BvhNode(Hitable **hitableList, int hitableAmount, Axis sortedAxis = Axis::NONE)
 	{
-		enum class Axis
-		{
-			x = 0,
-			y = 1,
-			z = 2
-		};
-
-		Axis axis = Axis(int(drand48() * 2.9999f));
-		auto sortingPredicate = [=](Hitable *left, Hitable *right)->bool
-		{
-			AABB boxLeft, boxRight;
-			if (!left->boundingBox(boxLeft) || !right->boundingBox(boxRight))
-				Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
-
-			return (boxLeft.min[int(axis)] < boxRight.min[int(axis)]);
-		};
-
-		std::sort(hitableList, hitableList + hitableAmount, sortingPredicate);
-
-
 		if(hitableAmount == 1)
 		{
 			left = right = hitableList[0];
@@ -43,9 +31,46 @@ public:
 			right = hitableList[1];
 		} else 
 		{
+			Hitable **sortedLists[3] = {};
+			
+			Axis axis = Axis::x;
+			
+			auto sortingPredicate = [&](Hitable *left, Hitable *right)->bool
+			{
+				AABB boxLeft, boxRight;
+				if (!left->boundingBox(boxLeft) || !right->boundingBox(boxRight))
+					Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
+
+				return (boxLeft.min[int(axis)] < boxRight.min[int(axis)]);
+			};
+
+			Axis maxAxis = sortedAxis;
+			
+			auto getSortedListAxisSpan = [](Hitable *min, Hitable *max, Axis axis) ->float
+			{
+				AABB boxMin, boxMax;
+				if (!min->boundingBox(boxMin) || !max->boundingBox(boxMax))
+					Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
+				return boxMax.max[int(axis)] - boxMin.min[int(axis)];
+			};
+
+			float maxAxisSpan = getSortedListAxisSpan(hitableList[0], hitableList[hitableAmount - 1], sortedAxis);
+
+			for (int i = 0; i < 3; i++)
+			{
+				axis = Axis(i);
+				if (axis == sortedAxis) continue;
+				sortedLists[i] = new Hitable * [hitableAmount];
+				std::copy(hitableList, hitableList + hitableAmount, sortedLists[i]);
+				std::sort(sortedLists[i], sortedLists[i] + hitableAmount, sortingPredicate);
+				float thisAxisSpan = getSortedListAxisSpan(sortedLists[i][0], sortedLists[i][hitableAmount - 1], axis);
+
+				if (thisAxisSpan > maxAxisSpan) { maxAxisSpan = thisAxisSpan; maxAxis = axis; }
+			}
+
 			int halfAmount = hitableAmount / 2;
-			left = new BvhNode(hitableList, halfAmount);
-			right = new BvhNode(hitableList + halfAmount, hitableAmount - halfAmount);
+			left = new BvhNode(sortedLists[int(maxAxis)], halfAmount);
+			right = new BvhNode(sortedLists[int(maxAxis)] + halfAmount, hitableAmount - halfAmount);
 		}
 
 		AABB boxLeft, boxRight;
