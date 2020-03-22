@@ -7,8 +7,8 @@ struct Image
 
 	unsigned char *atUV(float u, float v) const
 	{
-		int texelX = u * x;
-		int texelY = v * y;
+		int texelX = int(u * x);
+		int texelY = int(v * y);
 		return (*this).atTexel(texelX, texelY);
 	}
 

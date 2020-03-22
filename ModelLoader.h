@@ -9,12 +9,9 @@ class ModelLoader
 {
 public:
 
-	static Hitable *loadModel(const char *filePath, Material *material);
+	static std::vector<Triangle> &loadModel(const char *filePath, Material *material);
 
 private:
-
-	static Hitable *makeHitable(std::vector<Triangle> &model);
-
 	static std::unordered_map<std::string, std::vector<Triangle>> models;
 	ModelLoader() = delete;
 };

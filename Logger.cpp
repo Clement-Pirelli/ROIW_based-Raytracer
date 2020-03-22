@@ -7,7 +7,6 @@ void Logger::LogMessage(const char *message)
 	std::cout << "[message] " << message << '\n';
 }
 
-///TODO
 void Logger::LogMessageFormatted(const char * const format, ...)
 {
 	std::cout << "[message] ";
@@ -17,6 +16,8 @@ void Logger::LogMessageFormatted(const char * const format, ...)
 	va_start(list, format);
 	vprintf(format, list);
 	va_end(list);
+
+	std::cout << '\n';
 }
 
 void Logger::LogMessage(const char *message, int line, const char *file)
@@ -38,6 +39,8 @@ void Logger::LogErrorFormatted(const char *format, ...)
 	va_start(list, format);
 	vprintf(format, list);
 	va_end(list);
+
+	std::cout << '\n';
 }
 
 void Logger::LogError(const char *error, int line, const char *file)

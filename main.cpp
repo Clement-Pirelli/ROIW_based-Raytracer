@@ -3,7 +3,6 @@
 #include <string>
 #include <algorithm>
 #include "ray.h"
-#include "Sphere.h"
 #include "randUtils.h"
 #include "Randomizer.h"
 #include "AllMaterials.h"
@@ -20,13 +19,16 @@
 #include "ModelLoader.h"
 #include "ImageTexture.h"
 #include "ImageLoader.h"
+#include "AlignedAllocator.h"
+
+
 #define INPUT_CHECK(conditions, errorMessage) if(!(conditions)){ Logger::LogError(errorMessage); continue;};
 
 
 #pragma warning(disable : 6385)
 
 constexpr int maxBounces = 10;
-
+std::vector<Triangle> _; //needed so that the path tracer may hold a ref
 
 struct PathTracerConfig
 {
@@ -53,7 +55,7 @@ struct PathTracerConfig
 class PathTracer
 {
 public:
-	PathTracer()
+	PathTracer() : triangles(_)
 	{
 		threadAmount = std::thread::hardware_concurrency() - 1;
 
@@ -99,9 +101,17 @@ public:
 
 		image = new color[(size_t)config.xDim * config.yDim];
 
-		world = triangleScene(config);
+		triangles = triangleScene(config);
+		size_t triangleNumber = triangles.size();
+		Logger::LogMessageFormatted("Model successfully loaded! Model has %u triangles!", triangleNumber);
+		std::vector<int> triangleIndices = std::vector<int>(triangleNumber);
+		for (int i = 0; i < triangleNumber; i++) triangleIndices[i] = i;
 
-		Randomizer::createRandom(config.samples);
+		bvh.resize(2);
+
+		bvh[0] = BvhNode(triangles, triangleIndices, bvh);
+
+		Randomizer::createRandom(int(config.samples));
 
 		Logger::LogMessage("Path tracer successfully initialized!");
 
@@ -111,7 +121,6 @@ public:
 	~PathTracer()
 	{
 		if (config.renderingToScreen) delete screen;
-		delete world;
 		delete[] image;
 		delete[] threads;
 	}
@@ -126,11 +135,11 @@ public:
 		size_t heightPerThread = config.yDim;
 		for (size_t i = 0; i < threadAmount; i++)
 		{
-			std::thread *t = new (threads + i) std::thread(&PathTracer::trace, this, &config);
+			std::thread *t = new (threads + i) std::thread(&PathTracer::trace, this, &config, std::ref(triangles), std::ref(bvh));
 		}
 
 		//raytracing on this core as well
-		trace(&config);
+		trace(&config, triangles, bvh);
 
 		//join threads once this core is done
 		for (int i = 0; i < threadAmount; i++)
@@ -180,93 +189,7 @@ private:
 		return vec3(saturate(col.x), saturate(col.y), saturate(col.z));
 	}
 
-	static Hitable *randomScene(PathTracerConfig &config) {
-
-		constexpr int randomSpheresN = 10;
-
-		Hitable **list = new Hitable * [randomSpheresN * 2 * randomSpheresN * 2 + 4];
-		list[0] = new Sphere(vec3(0, -500.0f, 0), 500.0f, new Lambertian(new FlatTexture(vec3(0.5f, 0.5f, 0.5f))));
-		int i = 1;
-		for (int a = -randomSpheresN; a < randomSpheresN; a++) {
-			for (int b = -randomSpheresN; b < randomSpheresN; b++) {
-				float choose_mat = drand48();
-				vec3 center;
-
-				do
-				{
-					center = vec3(a + 0.9f * drand48(), 0.2f, b + 0.9f * drand48());
-				} while (!(center - vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f);
-
-				float radius = .2f;
-
-				Material *mat = nullptr;
-
-				if (choose_mat < 0.6f) {
-					mat = new Lambertian(new FlatTexture(randVec3()));
-				}
-				else if (choose_mat < 0.7f)
-				{
-					mat = new DiffuseLight(new FlatTexture(randVec3() * 3.0f));
-				}
-				else if (choose_mat < 0.8f)
-				{
-					list[i++] = new ConstantMedium(new Sphere(center, 1.0f, nullptr), .5f, new FlatTexture(vec3(1.0f, 1.0f, 1.0f)));
-					continue;
-				}
-				else if (choose_mat < 0.95f) {
-					mat = new Metal(vec3(0.5f * (1.0f + drand48()),
-						0.5f * (1.0f + drand48()),
-						0.5f * (1.0f + drand48())),
-						0.5f * drand48());
-				}
-				else {
-					mat = new Dielectric(1.5f);
-				}
-
-				list[i++] = new Sphere(
-					center, radius, mat
-				);
-			}
-		}
-
-		list[i++] = new Sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new Dielectric(1.5f));
-		list[i++] = new Sphere(vec3(-5.0f, 1.0f, 0.0f), 2.0f, new DiffuseLight(new FlatTexture(vec3(0.4f, 0.2f, 0.1f) * 20.0f)));
-		list[i++] = new Sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new Metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
-
-		config.lookAt = vec3(.0f, 2.0f, .0f);
-		config.lookFrom = vec3(3.0f, 3.0f, -10.0f);
-		config.aperture = 1.0f;
-		config.distanceToFocus = 10.0f;
-		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 90.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
-
-		return new BvhNode(list, i);
-	}
-
-	static Hitable *cornellBox(PathTracerConfig &config)
-	{
-		Hitable **list = new Hitable*[7];
-		Material *green = new Lambertian(new FlatTexture(vec3(.0f,1.0f,.0f)));
-		Material *white = new Lambertian(new FlatTexture(vec3(1.0f, 1.0f, 1.0f)));
-		Material *red = new Lambertian(new FlatTexture(vec3(1.0f, .0f, .0f)));
-		
-		list[0] = new FlipNormals(new RectangleYZ(.0f,555.0f,.0f,555.0f,555.0f, green));
-		list[1] = new RectangleYZ(.0f, 555.0f, .0f, 555.0f, .0f, red);
-		list[3] = new FlipNormals(new RectangleXY(.0f, 555.0f, .0f, 555.0f, 555.0f, white));
-		list[2] = new FlipNormals(new RectangleXZ(.0f, 555.0f, .0f, 555.0f, 555.0f, white));
-		list[4] = new RectangleXZ(213.0f,343.0f,227.0f,332.0f,554.0f, new DiffuseLight(new FlatTexture(vec3(15.0f,15.0f,15.0f))));
-		list[5] = new Sphere(vec3(213.0f, 100.0f, 300.0f), 100.0f, new Metal(vec3(1.0f,.9f,.8f), .1f));
-		list[6] = new RectangleXZ(.0f, 555.0f, .0f, 555.0f, .0f, white);
-
-		config.lookAt = vec3(278.0f, 278.0f, 0.0f);
-		config.lookFrom = vec3(278.0f, 278.0f, -800.0f);
-		config.aperture = .0f;
-		config.distanceToFocus = 10.0f;
-		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 40.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
-		
-		return new BvhNode(list, 7);
-	}
-
-	static Hitable *triangleScene(PathTracerConfig &config)
+	static std::vector<Triangle> &triangleScene(PathTracerConfig &config)
 	{
 		config.lookAt = vec3(.0f, 8.0f, .0f);
 		config.lookFrom = vec3(-5.0f, 12.0f, -7.0f).rotateY(6.283272f * -.5f);
@@ -281,7 +204,6 @@ private:
 	{
 		if (config->renderingToScreen)
 		{
-			//todo : lock and unlock
 			screen->updateImage(image);
 		}
 	}
@@ -294,11 +216,11 @@ private:
 		return vec3::lerp(white, blue, t);
 	}
 
-	static vec3 sceneColor(const ray &currentRay, Hitable *world, float r1, float r2, int depth = 0)
+	static vec3 sceneColor(std::vector<Triangle> &triangles, BvhNode::BvhVector &bvh, const ray &currentRay, float r1, float r2, int depth = 0)
 	{
 		hitRecord record;
 
-		if (world->hit(currentRay, .0001f, 10000.0f, record))
+		if (bvh[0].hit(triangles, bvh, currentRay, .0001f, 10000.0f, record))
 		{
 			vec3 attenuation;
 			ray scatteredRay;
@@ -306,7 +228,7 @@ private:
 
 			if (depth < maxBounces && record.material->scatter(currentRay, record, attenuation, scatteredRay, r1, r2))
 			{
-				return emitted + attenuation * sceneColor(scatteredRay, world, r1, r2, depth + 1);
+				return emitted + attenuation * sceneColor(triangles, bvh, scatteredRay, r1, r2, depth + 1);
 			}
 			else
 			{
@@ -319,7 +241,7 @@ private:
 		}
 	}
 
-	void trace(PathTracerConfig *config)
+	void trace(PathTracerConfig *config, std::vector<Triangle> &triangles, BvhNode::BvhVector bvh)
 	{
 		Image blueNoise = ImageLoader::loadImage("_assets/bluenoise.png");
 		float xDimF = float(config->xDim);
@@ -345,7 +267,7 @@ private:
 						vec3 col = vec3(.0f, .0f, .0f);
 
 						//blue noise tiling
-						unsigned char *imageVal = blueNoise.atTexel(x, y);
+						unsigned char *imageVal = blueNoise.atTexel(static_cast<int>(x), static_cast<int>(y));
 						float noise1 = float(imageVal[0]) / 255.0f;
 						float noise2 = float(imageVal[1]) / 255.0f;
 
@@ -358,7 +280,7 @@ private:
 							currentRay.direction.normalize();
 							float _;
 							vec3 sampleRandom = Randomizer::getRandom(s);
-							col += sceneColor(currentRay, world, modf(sampleRandom.x + noise1, &_), modf(sampleRandom.y + noise2, &_));
+							col += sceneColor(triangles, bvh, currentRay, modf(sampleRandom.x + noise1, &_), modf(sampleRandom.y + noise2, &_));
 						}
 						col /= float(config->samples);
 
@@ -391,16 +313,20 @@ private:
 		}
 	}
 
-	PathTracerConfig config;
-
-	size_t threadAmount = 0;
-	std::thread *threads = nullptr;
 
 
 
 	//resources
+	BvhNode::BvhVector bvh;
+	std::vector<Triangle> &triangles;
 	color *image = nullptr;
-	Hitable *world = nullptr;
+
+
+	//config
+	PathTracerConfig config;
+
+	size_t threadAmount = 0;
+	std::thread *threads = nullptr;
 
 	//screen
 	RenderToScreen *screen = nullptr;

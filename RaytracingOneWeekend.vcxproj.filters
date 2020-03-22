@@ -75,6 +75,9 @@
     <ClCompile Include="Randomizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AlignedAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vec3.h">
@@ -158,9 +161,6 @@
     <ClInclude Include="ModelLoader.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ImageTexture.h">
       <Filter>Header Files\Textures</Filter>
     </ClInclude>
@@ -169,6 +169,12 @@
     </ClInclude>
     <ClInclude Include="Randomizer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AlignedAllocator.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

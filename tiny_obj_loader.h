@@ -1391,7 +1391,7 @@ static bool exportGroupsToShape(shape_t *shape, const PrimGroup &prim_group,
           real_t cx = std::fabs(e0y * e1z - e0z * e1y);
           real_t cy = std::fabs(e0z * e1x - e0x * e1z);
           real_t cz = std::fabs(e0x * e1y - e0y * e1x);
-          const real_t epsilon = std::numeric_limits<real_t>::epsilon();
+          constexpr real_t epsilon = std::numeric_limits<real_t>::epsilon();
           if (cx > epsilon || cy > epsilon || cz > epsilon) {
             // found a corner
             if (cx > cy && cx > cz) {

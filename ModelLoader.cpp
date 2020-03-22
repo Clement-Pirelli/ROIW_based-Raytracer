@@ -3,14 +3,18 @@
 #include "tiny_obj_loader.h"
 #include "BvhNode.h"
 
+
+#pragma warning(disable : 6386)
+#pragma warning(disable : 26451)
+
 std::unordered_map<std::string, std::vector<Triangle>> ModelLoader::models = std::unordered_map<std::string, std::vector<Triangle>>();
 
-Hitable *ModelLoader::loadModel(const char *filePath, Material *material)
+std::vector<Triangle> &ModelLoader::loadModel(const char *filePath, Material *material)
 {
 	std::string filePathStr = std::string(filePath);
 	if (models.count(filePathStr)) 
 	{
-		return makeHitable(models[filePathStr]);
+		return models[filePathStr];
 	}
 
 	tinyobj::attrib_t attrib;
@@ -63,16 +67,5 @@ Hitable *ModelLoader::loadModel(const char *filePath, Material *material)
 
 	models[filePathStr] = triangles;
 
-	return makeHitable(models[filePathStr]);
-}
-
-Hitable *ModelLoader::makeHitable(std::vector<Triangle> &model)
-{
-	Hitable **list = new Hitable*[model.size()];
-	for(size_t i = 0; i < model.size(); i++)
-	{
-		list[i] = &model[i];
-	}
-	
-	return new BvhNode(list, model.size());
+	return models[filePathStr];
 }
