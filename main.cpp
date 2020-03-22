@@ -273,8 +273,8 @@ private:
 
 						for (uint32_t s = 0; s < config->samples; s++)
 						{
-							float u = (float(x)+drand48()) / xDimF,
-								v = (float(y)+drand48()) / yDimF;
+							float u = (float(x)) / xDimF,
+								v = (float(y)) / yDimF;
 
 							ray currentRay = config->camera.getRay(u, v);
 							currentRay.direction.normalize();
@@ -303,7 +303,7 @@ private:
 					}
 				}
 				updateScreen(config);
-				Logger::LogMessageFormatted("Done with tile :  %u/%u\n", unsigned int(currentTile + 1), unsigned int(config->totalTileAmount));
+				Logger::LogMessageFormatted("Done with tile :  %u/%u", unsigned int(currentTile + 1), unsigned int(config->totalTileAmount));
 			}
 			else
 			{

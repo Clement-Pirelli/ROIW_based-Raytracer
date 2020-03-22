@@ -4,7 +4,7 @@
 
 void Logger::LogMessage(const char *message)
 {
-	std::cout << "[message] " << message << '\n';
+	printf("[message] %s\n", message);
 }
 
 void Logger::LogMessageFormatted(const char * const format, ...)
