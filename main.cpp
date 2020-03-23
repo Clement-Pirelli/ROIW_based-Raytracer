@@ -28,7 +28,7 @@
 #pragma warning(disable : 6385)
 
 constexpr int maxBounces = 10;
-std::vector<Triangle> _; //needed so that the path tracer may hold a ref
+std::vector<Triangle> discardTris; //needed so that the path tracer may hold a ref
 
 struct PathTracerConfig
 {
@@ -55,7 +55,7 @@ struct PathTracerConfig
 class PathTracer
 {
 public:
-	PathTracer() : triangles(_)
+	PathTracer() : triangles(discardTris)
 	{
 		threadAmount = std::thread::hardware_concurrency() - 1;
 
@@ -273,8 +273,8 @@ private:
 
 						for (uint32_t s = 0; s < config->samples; s++)
 						{
-							float u = (float(x)) / xDimF,
-								v = (float(y)) / yDimF;
+							float u = (float(x) + drand48()) / xDimF,
+								v = (float(y) + drand48()) / yDimF;
 
 							ray currentRay = config->camera.getRay(u, v);
 							currentRay.direction.normalize();
