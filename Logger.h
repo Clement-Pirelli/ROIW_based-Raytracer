@@ -1,6 +1,9 @@
 #ifndef LOGGER_H_DEFINED
 #define LOGGER_H_DEFINED
 
+#define LOGERROR_LINEFILE(msg) Logger::LogError(msg, __LINE__, __FILE__);
+#define LOGMSG_LINEFILE(msg) Logger::LogMessage(msg, __LINE__, __FILE__);
+
 class Logger
 {
 public:

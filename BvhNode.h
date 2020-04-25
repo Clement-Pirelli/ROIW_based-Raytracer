@@ -32,7 +32,7 @@ public:
 		{
 			triangleIndex = triangleIndices[0];
 			if (!triangles[triangleIndex].boundingBox(box))
-				Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
+				LOGERROR_LINEFILE("Couldn't create bounding box in BVH node constructor!");
 			count = 1;
 			return;
 		} else 
@@ -49,7 +49,7 @@ public:
 			{
 				AABB boxLeft, boxRight;
 				if (!triangles[leftIndex].boundingBox(boxLeft) || !triangles[rightIndex].boundingBox(boxRight))
-					Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
+					LOGERROR_LINEFILE("Couldn't create bounding box in BVH node constructor!");
 
 				return (boxLeft.min[int(axis)] < boxRight.min[int(axis)]);
 			};
@@ -64,7 +64,7 @@ public:
 			{
 				AABB boxMin, boxMax;
 				if (!triangles[min].boundingBox(boxMin) || !triangles[max].boundingBox(boxMax))
-					Logger::LogError("Couldn't create bounding box in BVH node constructor!", __LINE__, __FILE__);
+					LOGERROR_LINEFILE("Couldn't create bounding box in BVH node constructor!");
 				return boxMax.max[int(axis)] - boxMin.min[int(axis)];
 			};
 
