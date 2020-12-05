@@ -42,19 +42,7 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hitable.cpp">
-      <Filter>Source Files\Hitables</Filter>
-    </ClCompile>
-    <ClCompile Include="HitableList.cpp">
-      <Filter>Source Files\Hitables</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
-      <Filter>Source Files\Hitables</Filter>
-    </ClCompile>
     <ClCompile Include="Logger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderToScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BMPWriter.cpp">
@@ -76,6 +64,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AlignedAllocator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderToWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -102,9 +96,6 @@
       <Filter>Header Files\Hitables</Filter>
     </ClInclude>
     <ClInclude Include="HitableList.h">
-      <Filter>Header Files\Hitables</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
       <Filter>Header Files\Hitables</Filter>
     </ClInclude>
     <ClInclude Include="Lambertian.h">
@@ -140,13 +131,7 @@
     <ClInclude Include="FlatTexture.h">
       <Filter>Header Files\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="RenderToScreen.h">
-      <Filter>Header Files\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="ConstantMedium.h">
-      <Filter>Header Files\Hitables</Filter>
-    </ClInclude>
-    <ClInclude Include="Rectangle.h">
       <Filter>Header Files\Hitables</Filter>
     </ClInclude>
     <ClInclude Include="FlipNormals.h">
@@ -175,6 +160,15 @@
     </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderToWindow.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

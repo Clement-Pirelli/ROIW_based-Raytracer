@@ -1,15 +1,5 @@
-#include "RenderToScreen.h"
+#include "RenderToWindow.h"
 #include "Logger.h"
-#include <cstdint>
-
-union color
-{
-	struct
-	{
-		uint8_t b, g, r, a;
-	};
-	uint8_t data[4];
-};
 
 
 #pragma region WINDOW DISPLAY
@@ -77,7 +67,7 @@ static LRESULT CALLBACK
 Win32DefaultProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
 	switch (message) {
 	case WM_CLOSE: { PostQuitMessage(0); } break;
-	default: { return DefWindowProcA(window, message, wparam, lparam); } break;
+	default: { return DefWindowProcW(window, message, wparam, lparam); } break;
 	}
 	return 0;
 }
@@ -97,20 +87,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-RenderToScreen::RenderToScreen(color *image, size_t width, size_t height, const char *title) : width(width), height(height), rt(nullptr), title(title)
+RenderToWindow::RenderToWindow(color *image, size_t width, size_t height) : width(width), height(height), rt(nullptr)
 {
-	const char *const myclass = "minimalWindowClass";
+	const wchar_t *const myclass = L"minimalWindowClass";
 
-	WNDCLASSEXA wc = {};
+		WNDCLASSEXW wc = {};
 	wc.cbSize = sizeof(wc);
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = DefWindowProc;
+	wc.lpfnWndProc = Win32DefaultProc;
 	wc.hInstance = GetModuleHandle(0);
 	wc.hCursor = LoadCursor(0, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wc.lpszClassName = myclass;
 
-	if (RegisterClassExA(&wc))
+	if (RegisterClassExW(&wc))
 	{
 		DWORD window_style = (WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
 		RECT rc = { 0, 0, width, height };
@@ -119,15 +109,15 @@ RenderToScreen::RenderToScreen(color *image, size_t width, size_t height, const 
 			Logger::LogError("Couldn't show the image : window rect adjustment failed!"); 
 			return; 
 		}
-		HWND windowHandleA = CreateWindowExA(0, wc.lpszClassName,
-			title, window_style, CW_USEDEFAULT, CW_USEDEFAULT,
+		HWND windowHandle = CreateWindowExW(0, wc.lpszClassName,
+			L"Output image", window_style, CW_USEDEFAULT, CW_USEDEFAULT,
 			rc.right - rc.left, rc.bottom - rc.top, 0, 0, GetModuleHandle(NULL), NULL);
-		if (!windowHandleA) { Logger::LogError("Couldn't show the image : window handle creation was unsuccessful!"); return; }
-		ShowWindow(windowHandleA, SW_SHOW);
+		if (!windowHandle) { Logger::LogError("Couldn't show the image : window handle creation was unsuccessful!"); return; }
+		ShowWindow(windowHandle, SW_SHOW);
 
-		if (windowHandleA)
+		if (windowHandle)
 		{
-			HDC device = GetDC(windowHandleA);
+			HDC device = GetDC(windowHandle);
 			rt = new RenderTarget(device, width, height);
 
 			rt->clear(makeColor(0x00,0x00,0x00,0xff));			
@@ -141,12 +131,12 @@ RenderToScreen::RenderToScreen(color *image, size_t width, size_t height, const 
 	}
 }
 
-RenderToScreen::~RenderToScreen()
+RenderToWindow::~RenderToWindow()
 {
 	delete rt;
 }
 
-void RenderToScreen::handleMessagesBlocking()
+void RenderToWindow::handleMessagesBlocking()
 {
 	MSG msg;
 	while(GetMessage(&msg, 0, 0, 0))
@@ -158,7 +148,7 @@ void RenderToScreen::handleMessagesBlocking()
 	}
 }
 
-void RenderToScreen::updateImage(color *image)
+void RenderToWindow::updateImage(color *image)
 {
 	if (rt == nullptr) return;
 

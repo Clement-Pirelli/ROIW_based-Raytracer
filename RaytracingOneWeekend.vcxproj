@@ -101,7 +101,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
@@ -135,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
@@ -149,17 +149,15 @@
     <ClCompile Include="AlignedAllocator.cpp" />
     <ClCompile Include="BMPWriter.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Hitable.cpp" />
-    <ClCompile Include="HitableList.cpp" />
     <ClCompile Include="ImageLoader.cpp" />
     <ClCompile Include="ImageTexture.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
+    <ClCompile Include="PathTracer.cpp" />
     <ClCompile Include="Randomizer.cpp" />
     <ClCompile Include="ray.cpp" />
-    <ClCompile Include="RenderToScreen.cpp" />
-    <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="RenderToWindow.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="vec3.cpp" />
   </ItemGroup>
@@ -170,6 +168,7 @@
     <ClInclude Include="BMPWriter.h" />
     <ClInclude Include="BvhNode.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="color.h" />
     <ClInclude Include="ConstantMedium.h" />
     <ClInclude Include="Dielectric.h" />
     <ClInclude Include="DiffuseLight.h" />
@@ -184,12 +183,11 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Metal.h" />
     <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="PathTracer.h" />
     <ClInclude Include="Randomizer.h" />
     <ClInclude Include="randUtils.h" />
     <ClInclude Include="ray.h" />
-    <ClInclude Include="Rectangle.h" />
-    <ClInclude Include="RenderToScreen.h" />
-    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="RenderToWindow.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="tiny_obj_loader.h" />
