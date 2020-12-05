@@ -1,7 +1,7 @@
 #ifndef RANDOMIZER_H_INCLUDED
 #define RANDOMIZER_H_INCLUDED
 
-#include "vec3.h"
+#include "vec.h"
 #include <vector>
 
 class Randomizer

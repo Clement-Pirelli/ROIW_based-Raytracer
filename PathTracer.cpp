@@ -1,6 +1,21 @@
 #include "PathTracer.h"
+#include "BMPWriter.h"
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include "ray.h"
+#include "randUtils.h"
+#include "Randomizer.h"
+#include "Lambertian.h"
+#include <atomic>
+#include "Logger.h"
+#include "FlatTexture.h"
+#include "RenderToWindow.h"
+#include "ModelLoader.h"
+#include "ImageTexture.h"
+#include "ImageLoader.h"
 
-
+#pragma warning(disable : 6385)
 namespace
 {
 	constexpr int maxBounces = 10;
@@ -24,18 +39,18 @@ namespace
 
 	vec3 ACESTonemap(const vec3 &inColor)
 	{
-		float a = 2.51f;
-		float b = 0.03f;
-		float c = 2.43f;
-		float d = 0.59f;
-		float e = 0.14f;
+		constexpr float a = 2.51f;
+		constexpr float b = 0.03f;
+		constexpr float c = 2.43f;
+		constexpr float d = 0.59f;
+		constexpr float e = 0.14f;
 		vec3 col = (inColor * (vec3(b, b, b) + inColor * a)) / (inColor * (inColor * c + vec3(d, d, d)) + vec3(e, e, e));
-		return vec3(saturate(col.x), saturate(col.y), saturate(col.z));
+		return vec3(saturate(col.x()), saturate(col.y()), saturate(col.z()));
 	}
 
 	vec3 sky(const ray &currentRay)
 	{
-		float t = .5f * (currentRay.direction.y + 1.0f);
+		float t = .5f * (currentRay.direction.y() + 1.0f);
 		vec3 white = vec3(1.0f, 1.0f, 1.0f);
 		vec3 blue = vec3(.5f, .7f, 1.0f);
 		return vec3::lerp(white, blue, t);
@@ -69,7 +84,7 @@ namespace
 	std::vector<Triangle> &triangleScene(PathTracerConfig &config)
 	{
 		config.lookAt = vec3(.0f, 8.0f, .0f);
-		config.lookFrom = vec3(-5.0f, 12.0f, -7.0f).rotateY(6.283272f * -.5f);
+		config.lookFrom = vec3(-5.0f, 12.0f, -7.0f).rotatedY(6.283272f * -.5f);
 		config.aperture = .0f;
 		config.distanceToFocus = .4f;
 		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 90.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
@@ -192,7 +207,7 @@ void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &tr
 						currentRay.direction.normalize();
 						float _;
 						vec3 sampleRandom = Randomizer::getRandom(s);
-						col += sceneColor(triangles, bvh, currentRay, modf(sampleRandom.x + noise1, &_), modf(sampleRandom.y + noise2, &_));
+						col += sceneColor(triangles, bvh, currentRay, modf(sampleRandom.x() + noise1, &_), modf(sampleRandom.y() + noise2, &_));
 					}
 					col /= float(config.samples);
 
@@ -201,16 +216,16 @@ void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &tr
 
 					//gamma correction
 					col = vec3(
-						powf(col.x, 1.0f / 2.2f),
-						powf(col.y, 1.0f / 2.2f),
-						powf(col.z, 1.0f / 2.2f));
+						powf(col.x(), 1.0f / 2.2f),
+						powf(col.y(), 1.0f / 2.2f),
+						powf(col.z(), 1.0f / 2.2f));
 
 
 					color currentCol
 					{
-						.b = uint8_t(255.99f * col.b),
-						.g = uint8_t(255.99f * col.g),
-						.r = uint8_t(255.99f * col.r),
+						.b = uint8_t(255.99f * col.b()),
+						.g = uint8_t(255.99f * col.g()),
+						.r = uint8_t(255.99f * col.r()),
 						.a = 255
 					};
 					image[y * config.xDim + x] = currentCol;

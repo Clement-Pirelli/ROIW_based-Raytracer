@@ -1,6 +1,6 @@
 #ifndef RAY_H_DEFINED
 #define RAY_H_DEFINED
-#include "vec3.h"
+#include "vec.h"
 
 struct ray
 {

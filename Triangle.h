@@ -1,6 +1,6 @@
 #pragma once
 #include "Hitable.h"
-#include "vec3.h"
+#include "vec.h"
 #include "Material.h"
 
 struct Vertex

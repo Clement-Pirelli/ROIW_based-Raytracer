@@ -1,6 +1,6 @@
 #ifndef TEXTURE_H_DEFINED
 #define TEXTURE_H_DEFINED
-#include "vec3.h"
+#include "vec.h"
 
 
 class Texture

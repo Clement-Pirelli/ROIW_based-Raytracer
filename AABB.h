@@ -1,7 +1,7 @@
 #ifndef AABB_H_DEFINED
 #define AABB_H_DEFINED
 #include <math.h>
-#include "vec3.h"
+#include "vec.h"
 #include "ray.h"
 #include <utility>
 
@@ -12,7 +12,7 @@ class AABB
 {
 public:
 	AABB(const vec3 &givenMin, const vec3 &givenMax) : min(givenMin), max(givenMax) {}
-	AABB(){}
+	AABB() = default;
 
 
 	bool hit(const ray &givenRay, float minT, float maxT) const 
@@ -32,8 +32,8 @@ public:
 
 	static AABB unite(const AABB &firstBox, const AABB &secondBox)
 	{
-		vec3 small(_min(firstBox.min.x, secondBox.min.x), _min(firstBox.min.y, secondBox.min.y), _min(firstBox.min.z, secondBox.min.z));
-		vec3 big(_max(firstBox.max.x, secondBox.max.x), _max(firstBox.max.y, secondBox.max.y), _max(firstBox.max.z, secondBox.max.z));
+		vec3 small = vec3::min(firstBox.min, secondBox.min);
+		vec3 big = vec3::max(firstBox.max, secondBox.max);
 		return AABB(small, big);
 	}
 

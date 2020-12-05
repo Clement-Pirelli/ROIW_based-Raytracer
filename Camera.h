@@ -2,7 +2,7 @@
 #define CAMERA_H_DEFINED
 #include "ray.h"
 #include <math.h>
-#include "vec3.h"
+#include "vec.h"
 #include "randUtils.h"
 #include "ImageLoader.h"
 #include <cmath>
@@ -43,7 +43,7 @@ public:
 	ray getRay(float s, float t) const
 	{
 		vec3 random = randInUnitDisk() * lensRadius;
-		vec3 offset = u * random.x + v * random.y;
+		vec3 offset = u * random.x() + v * random.y();
 		return ray(origin + offset, bottomLeftCorner + horizontal * s + vertical * t - origin - offset);
 	}
 

@@ -159,7 +159,6 @@
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="RenderToWindow.cpp" />
     <ClCompile Include="Triangle.cpp" />
-    <ClCompile Include="vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
@@ -192,7 +191,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Triangle.h" />
-    <ClInclude Include="vec3.h" />
+    <ClInclude Include="vec.h" />
     <ClInclude Include="Volume.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

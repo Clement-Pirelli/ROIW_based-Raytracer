@@ -22,7 +22,7 @@ class BvhNode
 
 public:
 
-	typedef std::vector<BvhNode, AlignedAllocator<BvhNode, Alignment::CACHELINE>> BvhVector;
+	using BvhVector = std::vector<BvhNode, AlignedAllocator<BvhNode, Alignment::CACHELINE>>;
 
 	BvhNode(){}
 	BvhNode(const std::vector<Triangle> &triangles, std::vector<int> triangleIndices, BvhVector &nodes, Axis sortedAxis = Axis::NONE)

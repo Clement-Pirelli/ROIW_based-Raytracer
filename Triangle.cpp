@@ -24,12 +24,12 @@ bool Triangle::hit(const ray &givenRay, float minT, float maxT, hitRecord &recor
 
    vec3 dir = (givenRay.origin - o);
    vec3 tuv = vec3(vec3::dot(inverseTransposedMat[0], dir), vec3::dot(inverseTransposedMat[1], dir), vec3::dot(inverseTransposedMat[2], dir));
-   if (minT < tuv.x && tuv.x < maxT && 0.0f < tuv.y && 0.0f < tuv.z && tuv.y + tuv.z < 1.0f)
+   if (minT < tuv.x() && tuv.x() < maxT && 0.0f < tuv.y() && 0.0f < tuv.z() && tuv.y() + tuv.z() < 1.0f)
    {
-       record.point = givenRay.pointAt(tuv.x);
-       record.distance = tuv.x;
-       record.u = tuv.y * vertices[1].u + tuv.z * vertices[2].u + (1.0f - tuv.y - tuv.z) * vertices[0].u;
-       record.v = tuv.y * vertices[1].v + tuv.z * vertices[2].v + (1.0f - tuv.y - tuv.z) * vertices[0].v;
+       record.point = givenRay.pointAt(tuv.x());
+       record.distance = tuv.x();
+       record.u = tuv.y() * vertices[1].u + tuv.z() * vertices[2].u + (1.0f - tuv.y() - tuv.z()) * vertices[0].u;
+       record.v = tuv.y() * vertices[1].v + tuv.z() * vertices[2].v + (1.0f - tuv.y() - tuv.z()) * vertices[0].v;
        record.normal = vec3::cross(e0, e1).normalized();
        record.material = material;
        return true;

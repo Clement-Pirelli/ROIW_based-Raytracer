@@ -1,23 +1,12 @@
 #pragma once
-#include "BMPWriter.h"
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include "ray.h"
-#include "randUtils.h"
-#include "Randomizer.h"
-#include "Lambertian.h"
+#include <vector>
+#include "BvhNode.h"
 #include "Camera.h"
 #include <thread>
-#include <atomic>
-#include "Logger.h"
-#include "BvhNode.h"
-#include "FlatTexture.h"
-#include "RenderToWindow.h"
-#include "ModelLoader.h"
-#include "ImageTexture.h"
-#include "ImageLoader.h"
-#pragma warning(disable : 6385)
+#include "Triangle.h"
+
+struct color;
+class RenderToWindow;
 
 struct PathTracerConfig
 {
