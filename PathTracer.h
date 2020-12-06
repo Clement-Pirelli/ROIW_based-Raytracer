@@ -14,9 +14,9 @@ struct PathTracerConfig
 	size_t xDim = 0;
 	size_t yDim = 0;
 	size_t samples = 0;
+	size_t dimTileAmount = 0;
 	size_t tileWidth = 0;
 	size_t tileHeight = 0;
-	size_t dimTileAmount = 0;
 	size_t totalTileAmount = 0;
 	size_t threadAmount = 0;
 
@@ -33,14 +33,12 @@ struct PathTracerConfig
 class PathTracer
 {
 public:
-	PathTracer(PathTracerConfig &&givenConfig);
+	PathTracer(PathTracerConfig givenConfig);
 
-	~PathTracer();
-
-	void run();
 
 private:
 
+	void run(PathTracerConfig config);
 	void updateScreen(const PathTracerConfig &config);
 
 	void trace(const PathTracerConfig &config, std::vector<Triangle> &triangles, const BvhNode::BvhVector &bvh);
@@ -51,10 +49,6 @@ private:
 	std::vector<Triangle> triangles;
 	color *image = nullptr;
 	std::atomic<uint32_t> tileCounter = 0;
-
-
-	//config
-	PathTracerConfig config;
 
 	size_t threadAmount = 0;
 	std::vector<std::thread> threads;

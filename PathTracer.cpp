@@ -94,7 +94,7 @@ namespace
 	}
 }
 
-PathTracer::PathTracer(PathTracerConfig &&givenConfig) : config(std::move(givenConfig))
+PathTracer::PathTracer(PathTracerConfig config)
 {
 	threads.resize(config.threadAmount);
 
@@ -116,15 +116,14 @@ PathTracer::PathTracer(PathTracerConfig &&givenConfig) : config(std::move(givenC
 	Logger::LogMessage("Path tracer successfully initialized!");
 
 	if (config.renderingToScreen) screen = new RenderToWindow(image, config.xDim, config.yDim);
-}
 
-PathTracer::~PathTracer()
-{
+	run(config);
+
 	if (config.renderingToScreen) delete screen;
 	delete[] image;
 }
 
-void PathTracer::run()
+void PathTracer::run(PathTracerConfig config)
 {
 	Logger::LogMessage("Starting Raytracing...");
 	Time timeStart = Time::now();
