@@ -1,14 +1,8 @@
 #include "ImageTexture.h"
 
 
-ImageTexture::ImageTexture(const char *path)
+ImageTexture::ImageTexture(const char *path) : image(path)
 {
-	image = ImageLoader::loadImage(path);
-}
-
-ImageTexture::~ImageTexture()
-{
-	ImageLoader::freeImage(image);
 }
 
 vec3 ImageTexture::valueAt(float u, float v, const vec3 &point) const

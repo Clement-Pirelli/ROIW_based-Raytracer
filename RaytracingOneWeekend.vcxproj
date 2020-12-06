@@ -149,7 +149,7 @@
     <ClCompile Include="AlignedAllocator.cpp" />
     <ClCompile Include="BMPWriter.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="ImageLoader.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageTexture.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
@@ -176,7 +176,7 @@
     <ClInclude Include="FlipNormals.h" />
     <ClInclude Include="Hitable.h" />
     <ClInclude Include="HitableList.h" />
-    <ClInclude Include="ImageLoader.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="ImageTexture.h" />
     <ClInclude Include="Lambertian.h" />
     <ClInclude Include="Logger.h" />

@@ -4,7 +4,7 @@
 #include <math.h>
 #include "vec.h"
 #include "randUtils.h"
-#include "ImageLoader.h"
+#include "Image.h"
 #include <cmath>
 
 constexpr float deg2rad = 3.1415926524f / 180.0f;
@@ -15,7 +15,7 @@ public:
 	Camera(){}
 	Camera(const vec3 &lookFrom, const vec3 &lookAt, const vec3 &viewUp, float verticalFOV, float aspectRatio, float aperture, float focusDistance)
 	{
-		blueNoise = ImageLoader::loadImage("_assets/bluenoise470x470.png");
+		blueNoise = Image("_assets/bluenoise470x470.png");
 		lensRadius = aperture * .5f;
 		
 
@@ -35,11 +35,6 @@ public:
 		vertical = v * 2.0f * focusDistance * halfHeight;
 	}
 
-	~Camera()
-	{
-		ImageLoader::freeImage(blueNoise);
-	}
-#define USEBLUENOISE
 	ray getRay(float s, float t) const
 	{
 		vec3 random = randInUnitDisk() * lensRadius;

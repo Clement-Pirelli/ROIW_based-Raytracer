@@ -5,7 +5,7 @@
 
 #define INPUT_CHECK(conditions, errorMessage) if(!(conditions)){ Logger::LogError(errorMessage); continue;};
 
-int main()
+PathTracerConfig readConfig()
 {
 	PathTracerConfig config;
 	config.threadAmount = std::thread::hardware_concurrency() - 1;
@@ -14,7 +14,6 @@ int main()
 	Logger::LogMessageFormatted("Welcome to the raytracer! You have %u available threads.\n", std::thread::hardware_concurrency());
 	while (true)
 	{
-
 		Logger::LogMessage("Please input the parameters :");
 		Logger::LogMessage("x :");
 		std::cin >> config.xDim;
@@ -47,6 +46,13 @@ int main()
 
 	config.tileWidth = config.xDim / config.dimTileAmount;
 	config.tileHeight = config.yDim / config.dimTileAmount;
+
+	return config;
+}
+
+int main()
+{
+	PathTracerConfig config = readConfig();
 	PathTracer pathTracer(std::move(config));
 
 	pathTracer.run();

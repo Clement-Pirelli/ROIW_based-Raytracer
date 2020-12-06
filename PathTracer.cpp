@@ -13,7 +13,7 @@
 #include "RenderToWindow.h"
 #include "ModelLoader.h"
 #include "ImageTexture.h"
-#include "ImageLoader.h"
+#include "Image.h"
 #include "Time.h"
 
 #pragma warning(disable : 6385)
@@ -149,7 +149,7 @@ void PathTracer::run()
 	Time timeEnd = Time::now();
 	Time delta = timeEnd - timeStart;
 
-	Logger::LogMessageFormatted("Raytracing done in %u milliseconds (%u seconds)\nThank you for your time!", delta.asMilliseconds().amount, delta.asSeconds());
+	Logger::LogMessageFormatted("Raytracing done in %u milliseconds (%f seconds)\nThank you for your time!", delta.asMilliseconds().amount, delta.asSeconds());
 
 	const std::string fileName = std::string("output/RaytracerOutput") + stringFromDate() + std::string(".bmp");
 	//output final image to .bmp
@@ -169,7 +169,7 @@ void PathTracer::updateScreen(const PathTracerConfig &config)
 
 void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &triangles, const BvhNode::BvhVector &bvh)
 {
-	Image blueNoise = ImageLoader::loadImage("_assets/bluenoise.png");
+	Image blueNoise("_assets/bluenoise.png");
 	float xDimF = float(config.xDim);
 	float yDimF = float(config.yDim);
 
@@ -235,7 +235,6 @@ void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &tr
 		}
 		else
 		{
-			ImageLoader::freeImage(blueNoise);
 			return;
 		}
 	}

@@ -18,19 +18,9 @@ struct Image
 		texelY %= y;
 		return &data[3 * texelX + 3 * x * texelY];
 	}
-};
 
-
-class ImageLoader
-{
-public:
-
-	static Image loadImage(const char *path);
-	static void freeImage(Image &image);
-
-private:
-
-
-	ImageLoader() = delete;
+	Image(const char *path);
+	Image() = default;
+	~Image();
 };
 
