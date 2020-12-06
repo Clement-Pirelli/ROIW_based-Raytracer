@@ -46,6 +46,8 @@ std::optional<PathTracerConfig> parseConfig()
 
 	auto stringToInt = [](const char *string) { return std::stoi(string); };
 	auto validateDimension = [](int value) { return value > 0; };
+	auto boolFromYesNo = [](const char *string) { return string[0] == 'y' ? true : false; };
+	auto boolAllValid = [](bool v) { return true; };
 
 	const std::optional<int> x = findValue<int>(configString, "x:", stringToInt, validateDimension);
 	
@@ -55,21 +57,23 @@ std::optional<PathTracerConfig> parseConfig()
 	
 	const std::optional<int> tiles = findValue<int>(configString, "tiles:", stringToInt, validateDimension);
 	
-	std::optional<bool> window = findValue<bool>(configString, "window:", [](const char *string) { return string[0] == 'y' ? true : false; }, [](bool value) { return true; });
+	//assumed to be false if not found
+	std::optional<bool> window = findValue<bool>(configString, "window:", boolFromYesNo, boolAllValid);
+	std::optional<bool> writeToFile = findValue<bool>(configString, "writetofile:", boolFromYesNo, boolAllValid);
 
 	if (allHaveValue(x, y, tiles, spp))
 	{
 		const PathTracerConfig result
 		{
-			.xDim = (size_t)x.value_or(0),
-			.yDim = (size_t)y.value_or(0),
-			.samples = (size_t)spp.value_or(0),
-			.dimTileAmount = (size_t)tiles.value_or(0),
+			.xDim = (size_t)x.value(),
+			.yDim = (size_t)y.value(),
+			.samples = (size_t)spp.value(),
+			.dimTileAmount = (size_t)tiles.value(),
 			.tileWidth = result.xDim / result.dimTileAmount,
 			.tileHeight = result.yDim / result.dimTileAmount,
 			.totalTileAmount = result.dimTileAmount * result.dimTileAmount,
-			.threadAmount = std::thread::hardware_concurrency() - 1,
 			.renderingToScreen = window.value_or(false),
+			.writeToFile = window.value_or(false)
 		};
 
 		if (!(result.xDim >= result.dimTileAmount && result.yDim >= result.dimTileAmount))

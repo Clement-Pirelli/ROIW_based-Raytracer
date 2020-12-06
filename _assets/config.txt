@@ -3,3 +3,4 @@ y:1000
 spp:10
 window:y
 tiles:10
+writetofile:n

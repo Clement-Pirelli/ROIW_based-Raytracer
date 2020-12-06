@@ -72,7 +72,6 @@ public:
 
 			for (int i = 0; i < 3; i++)
 			{
-
 				axis = Axis(i);
 				if (axis == sortedAxis) continue;
 				sortedLists[i].resize(vectorSize);

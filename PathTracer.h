@@ -18,7 +18,6 @@ struct PathTracerConfig
 	size_t tileWidth = 0;
 	size_t tileHeight = 0;
 	size_t totalTileAmount = 0;
-	size_t threadAmount = 0;
 
 	//camera
 	vec3 lookFrom = vec3();
@@ -27,7 +26,8 @@ struct PathTracerConfig
 	float aperture = .0f;
 	Camera camera = Camera();
 
-	bool renderingToScreen = false;
+	bool renderingToScreen : 1 = false;
+	bool writeToFile : 1 = false;
 };
 
 class PathTracer
@@ -50,7 +50,6 @@ private:
 	color *image = nullptr;
 	std::atomic<uint32_t> tileCounter = 0;
 
-	size_t threadAmount = 0;
 	std::vector<std::thread> threads;
 
 	//screen

@@ -10,6 +10,6 @@ int main()
 	std::optional<PathTracerConfig> config = parseConfig();
 	if(config)
 	{
-		PathTracer(config.value());
+		PathTracer trace(config.value());
 	}
 }

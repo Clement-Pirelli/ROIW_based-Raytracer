@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <numeric>
 #include "ray.h"
 #include "randUtils.h"
 #include "Randomizer.h"
@@ -96,7 +97,7 @@ namespace
 
 PathTracer::PathTracer(PathTracerConfig config)
 {
-	threads.resize(config.threadAmount);
+	threads.resize(std::thread::hardware_concurrency() - 1); // -1 because the main thread is also counted
 
 	image = new color[(size_t)config.xDim * config.yDim];
 
@@ -105,10 +106,9 @@ PathTracer::PathTracer(PathTracerConfig config)
 	Logger::LogMessageFormatted("Model successfully loaded! Model has %u triangles!", triangleNumber);
 
 	std::vector<int> triangleIndices = std::vector<int>(triangleNumber);
-	for (int i = 0; i < triangleNumber; i++) triangleIndices[i] = i;
+	std::iota(triangleIndices.begin(), triangleIndices.end(), 0);
 
 	bvh.resize(2);
-
 	bvh[0] = BvhNode(triangles, triangleIndices, bvh);
 
 	Randomizer::createRandom(int(config.samples));
@@ -152,7 +152,7 @@ void PathTracer::run(PathTracerConfig config)
 
 	const std::string fileName = std::string("output/RaytracerOutput") + stringFromDate() + std::string(".bmp");
 	//output final image to .bmp
-	writeBMP(fileName.c_str(), uint32_t(config.xDim), uint32_t(config.yDim), image);
+	if(config.writeToFile) writeBMP(fileName.c_str(), uint32_t(config.xDim), uint32_t(config.yDim), image);
 
 	//wait for the user to dismiss the window
 	if (config.renderingToScreen) screen->handleMessagesBlocking();
@@ -191,9 +191,9 @@ void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &tr
 					vec3 col = vec3(.0f, .0f, .0f);
 
 					//blue noise tiling
-					unsigned char *imageVal = blueNoise.atTexel(static_cast<int>(x), static_cast<int>(y));
-					float noise1 = float(imageVal[0]) / 255.0f;
-					float noise2 = float(imageVal[1]) / 255.0f;
+					color imageVal = blueNoise.atTexel(static_cast<int>(x), static_cast<int>(y));
+					float noise1 = float(imageVal.r) / 255.0f;
+					float noise2 = float(imageVal.g) / 255.0f;
 
 					for (uint32_t s = 0; s < config.samples; s++)
 					{
