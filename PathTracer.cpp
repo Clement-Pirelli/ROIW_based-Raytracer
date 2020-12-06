@@ -14,6 +14,7 @@
 #include "ModelLoader.h"
 #include "ImageTexture.h"
 #include "ImageLoader.h"
+#include "Time.h"
 
 #pragma warning(disable : 6385)
 namespace
@@ -126,7 +127,7 @@ PathTracer::~PathTracer()
 void PathTracer::run()
 {
 	Logger::LogMessage("Starting Raytracing...");
-	auto timeStart = std::chrono::high_resolution_clock::now();
+	Time timeStart = Time::now();
 
 	//thread creation
 	size_t widthPerThread = config.xDim;
@@ -145,12 +146,10 @@ void PathTracer::run()
 		thread.join();
 	}
 
-	//take time
-	auto timeEnd = std::chrono::high_resolution_clock::now();
-	auto delta = timeEnd - timeStart;
-	auto time = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
+	Time timeEnd = Time::now();
+	Time delta = timeEnd - timeStart;
 
-	Logger::LogMessageFormatted("Raytracing done in %u milliseconds (%u seconds)\nThank you for your time!", time, time / 1000);
+	Logger::LogMessageFormatted("Raytracing done in %u milliseconds (%u seconds)\nThank you for your time!", delta.asMilliseconds().amount, delta.asSeconds());
 
 	const std::string fileName = std::string("output/RaytracerOutput") + stringFromDate() + std::string(".bmp");
 	//output final image to .bmp

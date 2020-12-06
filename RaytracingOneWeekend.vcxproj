@@ -158,6 +158,7 @@
     <ClCompile Include="Randomizer.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="RenderToWindow.cpp" />
+    <ClCompile Include="Time.cpp" />
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +190,7 @@
     <ClInclude Include="RenderToWindow.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Time.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="vec.h" />
