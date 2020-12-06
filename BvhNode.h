@@ -151,6 +151,7 @@ private:
 		//if we pushed back the left node now, it might push back another node. This would mean we'd never be able to find our right node!
 		nodes.push_back(BvhNode());
 		nodes.push_back(BvhNode());
+		//todo: fix this
 		nodes[rightNode()] = BvhNode(triangles, std::vector<int>(sortedList.begin() + halfAmount, sortedList.end()), nodes, maxAxis);
 		nodes[leftNode] = BvhNode(triangles, std::vector<int>(sortedList.begin(), sortedList.begin() + halfAmount), nodes, maxAxis);
 	}

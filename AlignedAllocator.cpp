@@ -23,7 +23,6 @@ void *
 detail::allocate_aligned_memory(size_t align, size_t size)
 {
     assert(align >= sizeof(void *));
-    assert(nail::is_power_of_two(align));
 
     if (size == 0) {
         return nullptr;

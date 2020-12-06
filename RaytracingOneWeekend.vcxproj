@@ -148,7 +148,6 @@
   <ItemGroup>
     <ClCompile Include="AlignedAllocator.cpp" />
     <ClCompile Include="BMPWriter.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageTexture.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -165,6 +164,7 @@
     <ClInclude Include="AABB.h" />
     <ClInclude Include="AlignedAllocator.h" />
     <ClInclude Include="AllMaterials.h" />
+    <ClInclude Include="BlueNoise.h" />
     <ClInclude Include="BMPWriter.h" />
     <ClInclude Include="BvhNode.h" />
     <ClInclude Include="Camera.h" />

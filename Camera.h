@@ -4,7 +4,7 @@
 #include <math.h>
 #include "vec.h"
 #include "randUtils.h"
-#include "Image.h"
+#include "BlueNoise.h"
 #include <cmath>
 
 constexpr float deg2rad = 3.1415926524f / 180.0f;
@@ -15,7 +15,6 @@ public:
 	Camera(){}
 	Camera(const vec3 &lookFrom, const vec3 &lookAt, const vec3 &viewUp, float verticalFOV, float aspectRatio, float aperture, float focusDistance)
 	{
-		blueNoise = Image("_assets/bluenoise470x470.png");
 		lensRadius = aperture * .5f;
 		
 
@@ -48,7 +47,6 @@ public:
 	vec3 bottomLeftCorner;
 	vec3 u, v, w; //bases
 	float lensRadius = .0f;
-	Image blueNoise = {};
 };
 
 #endif

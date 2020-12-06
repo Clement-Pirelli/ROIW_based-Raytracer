@@ -13,8 +13,8 @@
 #include "RenderToWindow.h"
 #include "ModelLoader.h"
 #include "ImageTexture.h"
-#include "Image.h"
 #include "Time.h"
+#include "BlueNoise.h"
 
 #pragma warning(disable : 6385)
 namespace
@@ -169,7 +169,6 @@ void PathTracer::updateScreen(const PathTracerConfig &config)
 
 void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &triangles, const BvhNode::BvhVector &bvh)
 {
-	Image blueNoise("_assets/bluenoise.png");
 	float xDimF = float(config.xDim);
 	float yDimF = float(config.yDim);
 
