@@ -1,0 +1,5 @@
+x:1000
+y:1000
+spp:10
+window:y
+tiles:10

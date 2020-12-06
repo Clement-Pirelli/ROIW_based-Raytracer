@@ -172,6 +172,7 @@
     <ClInclude Include="ConstantMedium.h" />
     <ClInclude Include="Dielectric.h" />
     <ClInclude Include="DiffuseLight.h" />
+    <ClInclude Include="Files.h" />
     <ClInclude Include="FlatTexture.h" />
     <ClInclude Include="FlipNormals.h" />
     <ClInclude Include="Hitable.h" />

@@ -82,7 +82,7 @@ public:
 
 				if (thisAxisSpan > maxAxisSpan) { maxAxisSpan = thisAxisSpan; maxAxis = axis; }
 			}
-
+			if (maxAxis == Axis::NONE) maxAxis = Axis::x;
 			emplaceNodes(nodes, triangles, sortedLists[int(maxAxis)], maxAxis);
 		}
 
