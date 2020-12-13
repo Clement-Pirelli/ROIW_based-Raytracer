@@ -5,7 +5,7 @@
 namespace
 {
 	template<typename T, typename Format_t, typename Validate_t>
-	std::optional<T> findValue(const std::string &haystack, const std::string &prefix, Format_t format, Validate_t validate)
+	std::optional<T> findValue(std::string_view haystack, const std::string &prefix, Format_t format, Validate_t validate)
 	{
 		size_t position = haystack.find(prefix);
 		if (position == std::string::npos)
@@ -14,7 +14,7 @@ namespace
 			return std::nullopt;
 		}
 
-		const T value = format(haystack.c_str() + position + prefix.size());
+		const T value = format(haystack.data() + position + prefix.size());
 
 		if (!validate(value))
 		{
@@ -35,31 +35,38 @@ namespace
 		auto values = {hasValue(args)...};
 		return std::all_of(values.begin(), values.end(), [](bool b) {return b; });
 	}
+
+	std::optional<int> findInt(std::string_view txt, const std::string& prefix)
+	{
+		auto stringToInt = [](const char *string) { return std::stoi(string); };
+		auto validateDimension = [](int value) { return value > 0; };
+		return findValue<int>(txt, prefix, stringToInt, validateDimension);
+	}
+
+	std::optional<bool> findBool(std::string_view txt, const std::string &prefix)
+	{
+		auto boolFromYesNo = [](const char *string) { return string[0] == 'y' ? true : false; };
+		auto boolAllValid = [](bool v) { return true; };
+
+		return findValue<bool>(txt, prefix, boolFromYesNo, boolAllValid);
+	}
 }
 
 std::optional<PathTracerConfig> parseConfig()
 {
 	FileReader configReader("_assets/config.txt");
-	std::string configString;
-	configString.resize(configReader.calculateLength());
-	configReader.read(configString.data(), configString.size());
+	std::string configTxt;
+	configTxt.resize(configReader.calculateLength());
+	configReader.read(configTxt.data(), configTxt.size());
 
-	auto stringToInt = [](const char *string) { return std::stoi(string); };
-	auto validateDimension = [](int value) { return value > 0; };
-	auto boolFromYesNo = [](const char *string) { return string[0] == 'y' ? true : false; };
-	auto boolAllValid = [](bool v) { return true; };
-
-	const std::optional<int> x = findValue<int>(configString, "x:", stringToInt, validateDimension);
-	
-	const std::optional<int> y = findValue<int>(configString, "y:", stringToInt, validateDimension);
-	
-	const std::optional<int> spp = findValue<int>(configString, "spp:", stringToInt, validateDimension);
-	
-	const std::optional<int> tiles = findValue<int>(configString, "tiles:", stringToInt, validateDimension);
+	const std::optional<int> x = findInt(configTxt, "x:");
+	const std::optional<int> y = findInt(configTxt, "y:");
+	const std::optional<int> spp = findInt(configTxt, "spp:");
+	const std::optional<int> tiles = findInt(configTxt, "tiles:");
 	
 	//assumed to be false if not found
-	std::optional<bool> window = findValue<bool>(configString, "window:", boolFromYesNo, boolAllValid);
-	std::optional<bool> writeToFile = findValue<bool>(configString, "writetofile:", boolFromYesNo, boolAllValid);
+	const std::optional<bool> window = findBool(configTxt, "window:");
+	const std::optional<bool> writeToFile = findBool(configTxt, "writetofile:");
 
 	if (allHaveValue(x, y, tiles, spp))
 	{

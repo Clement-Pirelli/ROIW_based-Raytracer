@@ -1,5 +1,5 @@
-x:1000
-y:1000
+x:500
+y:500
 spp:10
 window:y
 tiles:10

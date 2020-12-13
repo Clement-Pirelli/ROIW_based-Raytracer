@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="AlignedAllocator.cpp" />
     <ClCompile Include="BMPWriter.cpp" />
+    <ClCompile Include="BvhNode.cpp" />
     <ClCompile Include="ConfigParser.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageTexture.cpp" />
@@ -156,7 +157,6 @@
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="PathTracer.cpp" />
     <ClCompile Include="Randomizer.cpp" />
-    <ClCompile Include="ray.cpp" />
     <ClCompile Include="RenderToWindow.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Triangle.cpp" />

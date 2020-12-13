@@ -9,8 +9,7 @@ struct Vertex
 	float u = .0f, v = .0f;
 };
 
-class Triangle :
-	public Hitable
+class Triangle
 {
 public:
 
@@ -19,7 +18,7 @@ public:
 	Vertex vertices[3] = {};
 	Material *material = nullptr;
 
-	virtual bool hit(const ray &givenRay, float minT, float maxT, hitRecord &record) const override;
-	virtual bool boundingBox(AABB &aabb) const override;
+	bool hit(const ray &givenRay, float minT, float maxT, hitRecord &record) const;
+	AABB boundingBox() const;
 };
 

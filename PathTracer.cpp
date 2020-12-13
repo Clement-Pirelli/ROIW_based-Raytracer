@@ -58,7 +58,7 @@ namespace
 		return vec3::lerp(white, blue, t);
 	}
 
-	vec3 sceneColor(const std::vector<Triangle> &triangles, const BvhNode::BvhVector &bvh, const ray &currentRay, float r1, float r2, int depth = 0)
+	vec3 sceneColor(const std::vector<Triangle> &triangles, const BvhVector &bvh, const ray &currentRay, float r1, float r2, int depth = 0)
 	{
 		hitRecord record;
 
@@ -104,12 +104,9 @@ PathTracer::PathTracer(PathTracerConfig config)
 	triangles = triangleScene(config);
 	const size_t triangleNumber = triangles.size();
 	Logger::LogMessageFormatted("Model successfully loaded! Model has %u triangles!", triangleNumber);
-
-	std::vector<int> triangleIndices = std::vector<int>(triangleNumber);
-	std::iota(triangleIndices.begin(), triangleIndices.end(), 0);
-
+	
 	bvh.resize(2);
-	bvh[0] = BvhNode(triangles, triangleIndices, bvh);
+	bvh[0] = BvhNode(0U, triangles, bvh);
 
 	Randomizer::createRandom(int(config.samples));
 
@@ -166,7 +163,7 @@ void PathTracer::updateScreen(const PathTracerConfig &config)
 	}
 }
 
-void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &triangles, const BvhNode::BvhVector &bvh)
+void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &triangles, const BvhVector &bvh)
 {
 	float xDimF = float(config.xDim);
 	float yDimF = float(config.yDim);
