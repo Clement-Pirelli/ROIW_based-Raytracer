@@ -64,18 +64,8 @@ public:
 
 	float surfaceArea() const requires (N == 3)
 	{
-		float result = .0f;
-
-		const vec2 front = max.xy() - min.xy();
-		result += 2.0f * (front.x() * front.y());
-
-		const vec2 up = vec2(max.x() - min.x(), max.z() - min.z());
-		result += 2.0f * (up.x() * up.y());
-
-		const vec2 right = vec2(max.y() - min.y(), max.z() - min.z());
-		result += 2.0f * (right.x() * right.y());
-		
-		return result;
+		const vec3 difference = max - min;
+		return 2.0f * (difference.x() * difference.y() + difference.y() * difference.z() + difference.z() * difference.x());
 	}
 
 	vec<N> min;

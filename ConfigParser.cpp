@@ -80,7 +80,7 @@ std::optional<PathTracerConfig> parseConfig()
 			.tileHeight = result.yDim / result.dimTileAmount,
 			.totalTileAmount = result.dimTileAmount * result.dimTileAmount,
 			.renderingToScreen = window.value_or(false),
-			.writeToFile = window.value_or(false)
+			.writeToFile = writeToFile.value_or(false)
 		};
 
 		if (!(result.xDim >= result.dimTileAmount && result.yDim >= result.dimTileAmount))

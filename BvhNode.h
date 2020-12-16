@@ -11,10 +11,20 @@
 class BvhNode;
 using BvhVector = std::vector<BvhNode, AlignedAllocator<BvhNode, Alignment::CACHELINE>>;
 
+enum Axis
+{
+	x = 0,
+	y = 1,
+	z = 2
+};
+
 struct splitPoint
 {
-	float sah;
-	size_t index;
+	float sah{};
+	size_t index{};
+	Axis axis{};
+
+	static splitPoint best(splitPoint a, splitPoint b) { return a.sah < b.sah ? a : b; }
 };
 
 class BvhNode

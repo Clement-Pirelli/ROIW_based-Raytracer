@@ -1,14 +1,9 @@
 #include "BvhNode.h"
 #include <numeric>
+#include <array>
 
 namespace
 {
-	enum Axis
-	{
-		x = 0,
-		y = 1,
-		z = 2
-	};
 
 	struct Range 
 	{ 
@@ -39,7 +34,7 @@ namespace
 		if (triangles.empty()) return AABB3();
 
 		AABB3 result = triangles[0].boundingBox();
-		
+
 		for (size_t i = 1; i < triangles.size(); i++)
 		{
 			result = AABB3::united(result, triangles[i].boundingBox());
@@ -48,29 +43,42 @@ namespace
 		return result;
 	}
 
-	splitPoint getPercentageSAH(const std::span<Triangle> triangles, const Axis axis, const Range span, float percentage)
+	AABB3 getAABB(const std::span<Triangle> triangles, const std::span<size_t> indices)
 	{
-		const float splitThreshold = span.min + abs(span.max-span.min) * percentage;
-		auto split = std::lower_bound(triangles.begin(), triangles.end(), splitThreshold, [axis](const Triangle &a, float b) { return a.boundingBox().min[(int)axis] < b; });
+		if (indices.empty()) return AABB3();
 
-		const size_t splitIndex = std::distance(triangles.begin(), split);
-		const std::span<Triangle> leftTriangles = triangles.subspan(0, splitIndex);
-		const std::span<Triangle> rightTriangles = triangles.subspan(splitIndex, triangles.size() - splitIndex);
-
-		const float sah = getAABB(leftTriangles).surfaceArea() * leftTriangles.size() + getAABB(rightTriangles).surfaceArea() * rightTriangles.size();
+		AABB3 result = triangles[indices.front()].boundingBox();
 		
-		return splitPoint{ sah, splitIndex };
+		for (size_t i = 1; i < indices.size(); i++)
+		{
+			result = AABB3::united(result, triangles[indices[i]].boundingBox());
+		}
+
+		return result;
 	}
 
-	splitPoint getSAHSplitPoint(const std::span<Triangle> triangles, const Axis axis, const Range span)
+	splitPoint getPercentageSAH(const std::span<Triangle> triangles, const std::span<size_t> indices, const Axis axis, const Range span, float percentage)
 	{
-		auto getSAH = [&](float percentage) { return getPercentageSAH(triangles, axis, span, percentage); };
-		auto bestSplit = [](splitPoint a, splitPoint b) { return a.sah < b.sah ? a : b; };
+		const float splitThreshold = span.min + abs(span.max-span.min) * percentage;
+		auto split = std::lower_bound(indices.begin(), indices.end(), splitThreshold, [axis, triangles](size_t a, float b) { return triangles[a].boundingBox().min[(int)axis] < b; });
+
+		const size_t splitIndex = std::distance(indices.begin(), split);
+		const std::span<size_t> leftIndices = indices.subspan(0, splitIndex);
+		const std::span<size_t> rightIndices = indices.subspan(splitIndex, indices.size() - splitIndex);
+
+		const float sah = getAABB(triangles, indices).surfaceArea() * leftIndices.size() + getAABB(triangles, indices).surfaceArea() * rightIndices.size();
+		
+		return splitPoint{ sah, splitIndex, axis };
+	}
+
+	splitPoint getSAHSplitPoint(const std::span<Triangle> triangles, const std::span<size_t> indices, const Axis axis, const Range span)
+	{
+		auto getSAH = [&](float percentage) { return getPercentageSAH(triangles, indices, axis, span, percentage); };
 
 		const splitPoint quarter = getSAH(.25f);
 		const splitPoint middle = getSAH(.5f);
 		const splitPoint threeQuarters = getSAH(.75f);
-		return bestSplit(bestSplit(quarter, middle), threeQuarters);
+		return splitPoint::best(splitPoint::best(quarter, middle), threeQuarters);
 	}
 
 	Range getSortedListAxisRange(Triangle &least, Triangle &most, Axis axis)
@@ -79,59 +87,44 @@ namespace
 		const AABB3 boxMax = most.boundingBox();
 		return { .min = boxMin.min[int(axis)], .max = boxMax.max[int(axis)] };
 	}
-
-	struct MaxAxisResult
-	{
-		Axis axis{};
-		Range range{};
-	};
-
-	MaxAxisResult chooseMaxAxis(std::span<Triangle> triangles, std::vector<size_t> *sortedLists)
-	{
-		const size_t vectorSize = triangles.size();
-		MaxAxisResult result{};
-		for (size_t i = 0; i < 3; i++)
-		{
-			const Axis currentAxis = Axis(i);
-			auto sortingPredicate = [&](int leftIndex, int rightIndex)->bool
-			{
-				const AABB boxLeft = triangles[leftIndex].boundingBox();
-				const AABB boxRight = triangles[rightIndex].boundingBox();
-
-				return (boxLeft.min[int(currentAxis)] < boxRight.min[int(currentAxis)]);
-			};
-			std::vector<size_t> &currentList = sortedLists[i];
-			currentList.resize(vectorSize);
-			std::iota(currentList.begin(), currentList.end(), 0);
-			std::sort(currentList.begin(), currentList.end(), sortingPredicate);
-			const Range thisAxisRange = getSortedListAxisRange(triangles[currentList.front()], triangles[currentList.back()], currentAxis);
-
-			if (thisAxisRange.span() >= result.range.span()) { result.range = thisAxisRange; result.axis = currentAxis; }
-		}
-
-		return result;
-	}
 }
 
 BvhNode::BvhNode(size_t startIndex, float parentSAH, std::span<Triangle> triangles, BvhVector &nodes) {
 	const size_t vectorSize = triangles.size();
 
-	std::vector<size_t> sortedLists[3] = {};
+	std::array<std::vector<size_t>, 3> sortedLists = {};
+	splitPoint bestSplitPoint;
+	bestSplitPoint.sah = parentSAH;
+	for (size_t i = 0; i < 3; i++)
+	{
+		const Axis currentAxis = Axis(i);
+		auto sortingPredicate = [&](int leftIndex, int rightIndex)->bool
+		{
+			const AABB boxLeft = triangles[leftIndex].boundingBox();
+			const AABB boxRight = triangles[rightIndex].boundingBox();
 
-	const MaxAxisResult maxAxisResult = chooseMaxAxis(triangles, sortedLists);
+			return (boxLeft.min[int(currentAxis)] < boxRight.min[int(currentAxis)]);
+		};
+		std::vector<size_t>& currentList = sortedLists[i];
+		currentList.resize(vectorSize);
+		std::iota(currentList.begin(), currentList.end(), 0);
+		std::sort(currentList.begin(), currentList.end(), sortingPredicate);
+		const Range thisAxisRange = getSortedListAxisRange(triangles[currentList.front()], triangles[currentList.back()], currentAxis);
+		const splitPoint current = getSAHSplitPoint(triangles, currentList, currentAxis, thisAxisRange);
 
-	reorder(triangles, sortedLists[(int)maxAxisResult.axis]);
+		bestSplitPoint = splitPoint::best(current, bestSplitPoint);
+	}
 
-	splitPoint sahSplitPoint = getSAHSplitPoint(triangles, maxAxisResult.axis, maxAxisResult.range);
+	reorder(triangles, sortedLists[bestSplitPoint.axis]);
 
-	if(sahSplitPoint.sah >= parentSAH || triangles.size() <= 2)
+	if(bestSplitPoint.sah >= parentSAH || triangles.size() <= 2 || bestSplitPoint.index == 0 || bestSplitPoint.index == triangles.size())
 	{
 		box = getAABB(triangles);
 		count = triangles.size();
 		triangleIndex = startIndex;
 	} else 
 	{
-		split(startIndex, triangles, sahSplitPoint, nodes);
+		split(startIndex, triangles, bestSplitPoint, nodes);
 
 		AABB boxLeft = nodes[leftNode].boundingBox();
 		AABB boxRight = nodes[rightNode()].boundingBox();
@@ -148,16 +141,15 @@ bool BvhNode::hit(const std::vector<Triangle> &triangles, const BvhVector &nodes
 			bool hit = false;
 			
 			hitRecord bestRecord;
-			int resultIndex = 0;
-			float min = 1000000.0f;
+			bestRecord.distance = 1000000.0f;
 
 			for(int i = 0; i < count; i++)
 			{
 				hitRecord currentRecord;
 				const bool currentHit = triangles[triangleIndex+i].hit(givenRay, minT, maxT, currentRecord);
-				hit |= currentHit;
 				if (currentHit && currentRecord.distance <= bestRecord.distance)
 				{
+					hit = true;
 					bestRecord = currentRecord;
 				}
 			}
