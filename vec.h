@@ -33,7 +33,7 @@ struct vec
 		return *this;																\
 	}
 
-#define VEC_TO_VEC_OPERATOR(op) [[nodiscard]] vec<N> operator op(vec3 other) const	\
+#define VEC_TO_VEC_OPERATOR(op) [[nodiscard]] vec<N> operator op(vec<N> other) const\
 	{																				\
 		vec<N> result = {};															\
 		for (size_t i = 0; i < N; i++)												\

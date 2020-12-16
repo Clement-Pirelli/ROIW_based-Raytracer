@@ -38,7 +38,7 @@ bool Triangle::hit(const ray &givenRay, float minT, float maxT, hitRecord &recor
 
 }
 
-AABB Triangle::boundingBox() const
+AABB3 Triangle::boundingBox() const
 {
     vec3 min = vec3( 10000000.0f, 1000000.0f, 1000000.0f);
     vec3 max = vec3(-10000000.0f,-1000000.0f,-1000000.0f);

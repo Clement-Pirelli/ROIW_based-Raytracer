@@ -8,28 +8,32 @@
 #include "AlignedAllocator.h"
 #include <span>
 
-constexpr size_t maxTrianglesPerLeaf = 5;
-
 class BvhNode;
 using BvhVector = std::vector<BvhNode, AlignedAllocator<BvhNode, Alignment::CACHELINE>>;
+
+struct splitPoint
+{
+	float sah;
+	size_t index;
+};
 
 class BvhNode
 {
 public:
 
 	BvhNode() = default;
-	BvhNode(size_t startIndex, std::span<Triangle> triangles, BvhVector &nodes);
+	BvhNode(size_t startIndex, float parentSAH, std::span<Triangle> triangles, BvhVector &nodes);
 
 
 
 	bool hit(const std::vector<Triangle> &triangles, const BvhVector &nodes, const ray &givenRay, float minT, float maxT, hitRecord &record) const;
-	AABB boundingBox() const;
+	AABB3 boundingBox() const;
 
 private:
 
-	void split(size_t startIndex, std::span<Triangle> triangles, size_t splitPoint, BvhVector& nodes);
+	void split(size_t startIndex, std::span<Triangle> triangles, splitPoint split, BvhVector& nodes);
 
-	AABB box;
+	AABB3 box;
 	//credit to Zuen#5394 on discord for this bvh node layout
 	union {
 		size_t leftNode = ~0U;  // index of left child if the current Node is not a leaf Node
@@ -56,7 +60,7 @@ public:
 	{
 		BVH result;
 		result.triangles = std::move(triangles);
-		result.nodes.reserve(triangles.size() / maxTrianglesPerLeaf);
+		result.nodes.reserve(triangles.size() / 3);
 		bool done = false;
 
 		while (!done)

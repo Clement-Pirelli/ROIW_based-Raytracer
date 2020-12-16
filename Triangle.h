@@ -19,6 +19,6 @@ public:
 	Material *material = nullptr;
 
 	bool hit(const ray &givenRay, float minT, float maxT, hitRecord &record) const;
-	AABB boundingBox() const;
+	AABB3 boundingBox() const;
 };
 

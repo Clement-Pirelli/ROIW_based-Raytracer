@@ -62,7 +62,7 @@ namespace
 	{
 		hitRecord record;
 
-		if (bvh[0].hit(triangles, bvh, currentRay, .0001f, 10000.0f, record))
+		if (bvh.front().hit(triangles, bvh, currentRay, .0001f, 10000.0f, record))
 		{
 			vec3 attenuation;
 			ray scatteredRay;
@@ -106,7 +106,7 @@ PathTracer::PathTracer(PathTracerConfig config)
 	Logger::LogMessageFormatted("Model successfully loaded! Model has %u triangles!", triangleNumber);
 	
 	bvh.resize(2);
-	bvh[0] = BvhNode(0U, triangles, bvh);
+	bvh[0] = BvhNode(0U, std::numeric_limits<float>::max(), triangles, bvh);
 
 	Randomizer::createRandom(int(config.samples));
 

@@ -1,23 +1,55 @@
 #ifndef AABB_H_DEFINED
 #define AABB_H_DEFINED
-#include <math.h>
+#include <limits>
 #include "vec.h"
+#include <cstdint>
 #include "ray.h"
 #include <utility>
 
 #define _min(a,b) (a < b ? a : b)
 #define _max(a,b) (a < b ? b : a)
 
+template<uint32_t N>
 class AABB
 {
 public:
-	AABB(const vec3 &givenMin, const vec3 &givenMax) : min(givenMin), max(givenMax) {}
-	AABB() = default;
 
+	constexpr AABB(const vec<N> &givenMin, const vec<N> &givenMax) : min(givenMin), max(givenMax) {}
+	constexpr AABB() {}
 
-	bool hit(const ray &givenRay, float minT, float maxT) const 
+	[[nodiscard]]
+	static AABB<N> united(const AABB<N> &firstBox, const AABB<N> &secondBox)
 	{
-		for(int a = 0; a < 3; a++)
+		vec<N> min = {}, max = {};
+		for (uint32_t i = 0; i < N; i++)
+		{
+			min[i] = _min(firstBox.min[i], secondBox.min[i]);
+			max[i] = _max(firstBox.max[i], secondBox.max[i]);
+		}
+		return AABB<N>(min, max);
+	}
+
+	AABB<N> &boundInto(const AABB<N> &other)
+	{
+		min = min.clampedBy(other.min, other.max);
+		max = max.clampedBy(other.min, other.max);
+		return *this;
+	}
+
+	[[nodiscard]]
+	bool hasArea() const
+	{
+		for (uint32_t i = 0; i < N; i++)
+		{
+			if (isApproximatively(min[i], max[i], std::numeric_limits<float>::epsilon()))
+				return false;
+		}
+		return true;
+	}
+
+	bool hit(const ray &givenRay, float minT, float maxT) const requires (N == 3)
+	{
+		for (uint32_t a = 0; a < N; a++)
 		{
 			float invDir = 1.0f / givenRay.direction[a];
 			float t0 = (min[a] - givenRay.origin[a]) * invDir;
@@ -28,17 +60,39 @@ public:
 			if (maxT <= minT) return false;
 		}
 		return true;
-	}
+	};
 
-	static AABB unite(const AABB &firstBox, const AABB &secondBox)
+	float surfaceArea() const requires (N == 3)
 	{
-		vec3 small = vec3::min(firstBox.min, secondBox.min);
-		vec3 big = vec3::max(firstBox.max, secondBox.max);
-		return AABB(small, big);
+		float result = .0f;
+
+		const vec2 front = max.xy() - min.xy();
+		result += 2.0f * (front.x() * front.y());
+
+		const vec2 up = vec2(max.x() - min.x(), max.z() - min.z());
+		result += 2.0f * (up.x() * up.y());
+
+		const vec2 right = vec2(max.y() - min.y(), max.z() - min.z());
+		result += 2.0f * (right.x() * right.y());
+		
+		return result;
 	}
 
-	 vec3 min, max;
+	vec<N> min;
+	vec<N> max;
+
+private:
+
+	inline float isApproximatively(float a, float b, float approx)
+	{
+		return (a + approx) > b && (a - approx) < b;
+	}
 };
 
+using AABB2 = AABB<2>;
+using AABB3 = AABB<3>;
+
+#undef _min
+#undef _max
 
 #endif // !AABB_H_DEFINED

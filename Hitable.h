@@ -20,7 +20,7 @@ class Hitable
 public:
 	~Hitable(){}
 	virtual bool hit(const ray& givenRay, float minT, float maxT, hitRecord& record) const = 0;
-	virtual bool boundingBox(AABB &aabb) const = 0;
+	virtual bool boundingBox(AABB3 &aabb) const = 0;
 };
 
 #endif // !HITABLE_H_DEFINED
