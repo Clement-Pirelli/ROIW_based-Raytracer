@@ -13,10 +13,9 @@ class Triangle
 {
 public:
 
-	Triangle(Vertex *vertices, Material *mat);
+	Triangle(Vertex *vertices);
 
 	Vertex vertices[3] = {};
-	Material *material = nullptr;
 
 	bool hit(const ray &givenRay, float minT, float maxT, hitRecord &record) const;
 	AABB3 boundingBox() const;

@@ -1,11 +1,10 @@
 #include "Triangle.h"
 
-Triangle::Triangle(Vertex *givenVertices, Material *mat)
+Triangle::Triangle(Vertex *givenVertices)
 {
     vertices[0] = givenVertices[0];
     vertices[1] = givenVertices[1];
     vertices[2] = givenVertices[2];
-    material = mat;
 }
 
 bool Triangle::hit(const ray &givenRay, float minT, float maxT, hitRecord &record) const
@@ -31,7 +30,6 @@ bool Triangle::hit(const ray &givenRay, float minT, float maxT, hitRecord &recor
        record.u = tuv.y() * vertices[1].u + tuv.z() * vertices[2].u + (1.0f - tuv.y() - tuv.z()) * vertices[0].u;
        record.v = tuv.y() * vertices[1].v + tuv.z() * vertices[2].v + (1.0f - tuv.y() - tuv.z()) * vertices[0].v;
        record.normal = vec3::cross(e0, e1).normalized();
-       record.material = material;
        return true;
    }
    return false;

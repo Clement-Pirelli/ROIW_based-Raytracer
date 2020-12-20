@@ -6,6 +6,18 @@
 #include <assert.h>
 #include <vector>
 
+namespace details
+{
+	template<typename T>
+	concept Fillable = requires(T a)
+	{
+		a.resize(size_t{});
+		a.data();
+		a.size();
+	};
+
+}
+
 class FileReader {
 public:
 	FileReader(std::string givenPath) : path(givenPath), stream(path, std::ios::binary)
@@ -31,6 +43,15 @@ public:
 	{
 		assert(dataToFill != nullptr);
 		stream.read(dataToFill, size);
+	}
+
+	template<details::Fillable T>
+	T readInto()
+	{
+		T result{};
+		result.resize(calculateLength());
+		read(result.data(), result.size());
+		return result;
 	}
 
 private:

@@ -55,9 +55,7 @@ namespace
 std::optional<PathTracerConfig> parseConfig()
 {
 	FileReader configReader("_assets/config.txt");
-	std::string configTxt;
-	configTxt.resize(configReader.calculateLength());
-	configReader.read(configTxt.data(), configTxt.size());
+	const std::string configTxt = configReader.readInto<std::string>();
 
 	const std::optional<int> x = findInt(configTxt, "x:");
 	const std::optional<int> y = findInt(configTxt, "y:");

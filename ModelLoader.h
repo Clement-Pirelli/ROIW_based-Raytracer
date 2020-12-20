@@ -9,7 +9,7 @@ class ModelLoader
 {
 public:
 
-	static std::vector<Triangle> &loadModel(const char *filePath, Material *material);
+	static std::vector<Triangle> &loadModel(const char *filePath);
 
 private:
 	static std::unordered_map<std::string, std::vector<Triangle>> models;

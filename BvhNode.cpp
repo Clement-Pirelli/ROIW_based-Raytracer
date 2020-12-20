@@ -4,15 +4,6 @@
 
 namespace
 {
-
-	struct Range 
-	{ 
-		float min{};  
-		float max{};
-
-		float span() const { return max - min; }
-	};
-
 	template <class T>
 	void reorder(std::span<T> &span, std::vector<size_t> &indices)
 	{
@@ -56,44 +47,13 @@ namespace
 
 		return result;
 	}
-
-	splitPoint getPercentageSAH(const std::span<Triangle> triangles, const std::span<size_t> indices, const Axis axis, const Range span, float percentage)
-	{
-		const float splitThreshold = span.min + abs(span.max-span.min) * percentage;
-		auto split = std::lower_bound(indices.begin(), indices.end(), splitThreshold, [axis, triangles](size_t a, float b) { return triangles[a].boundingBox().min[(int)axis] < b; });
-
-		const size_t splitIndex = std::distance(indices.begin(), split);
-		const std::span<size_t> leftIndices = indices.subspan(0, splitIndex);
-		const std::span<size_t> rightIndices = indices.subspan(splitIndex, indices.size() - splitIndex);
-
-		const float sah = getAABB(triangles, leftIndices).surfaceArea() * leftIndices.size() + getAABB(triangles, rightIndices).surfaceArea() * rightIndices.size();
-		
-		return splitPoint{ sah, splitIndex, axis };
-	}
-
-	splitPoint getSAHSplitPoint(const std::span<Triangle> triangles, const std::span<size_t> indices, const Axis axis, const Range span)
-	{
-		auto getSAH = [&](float percentage) { return getPercentageSAH(triangles, indices, axis, span, percentage); };
-
-		const splitPoint quarter = getSAH(.25f);
-		const splitPoint middle = getSAH(.5f);
-		const splitPoint threeQuarters = getSAH(.75f);
-		return splitPoint::best(splitPoint::best(quarter, middle), threeQuarters);
-	}
-
-	Range getSortedListAxisRange(Triangle &least, Triangle &most, Axis axis)
-	{
-		const AABB3 boxMin = least.boundingBox();
-		const AABB3 boxMax = most.boundingBox();
-		return { .min = boxMin.min[int(axis)], .max = boxMax.max[int(axis)] };
-	}
 }
 
-BvhNode::BvhNode(size_t startIndex, float parentSAH, std::span<Triangle> triangles, BvhVector &nodes) {
+BVH::BvhNode::BvhNode(size_t startIndex, float parentSAH, std::span<Triangle> triangles, BvhVector &nodes) {
 	const size_t vectorSize = triangles.size();
 
 	std::array<std::vector<size_t>, 3> sortedLists = {};
-	splitPoint bestSplitPoint;
+	BVH::splitPoint bestSplitPoint;
 	bestSplitPoint.sah = parentSAH;
 	for (size_t i = 0; i < 3; i++)
 	{
@@ -132,7 +92,7 @@ BvhNode::BvhNode(size_t startIndex, float parentSAH, std::span<Triangle> triangl
 	}
 }
 
-bool BvhNode::hit(const std::vector<Triangle> &triangles, const BvhVector &nodes, const ray &givenRay, float minT, float maxT, hitRecord &record) const
+bool BVH::BvhNode::hit(const std::vector<Triangle> &triangles, const BvhVector &nodes, const ray &givenRay, float minT, float maxT, hitRecord &record) const
 {
 	if (box.hit(givenRay, minT, maxT))
 	{
@@ -185,12 +145,43 @@ bool BvhNode::hit(const std::vector<Triangle> &triangles, const BvhVector &nodes
 	return false;
 }
 
-AABB3 BvhNode::boundingBox() const
+AABB3 BVH::BvhNode::boundingBox() const
 {
 	return box;
 }
 
-void BvhNode::split(size_t startIndex, std::span<Triangle> triangles, splitPoint split, BvhVector &nodes)
+BVH::splitPoint BVH::BvhNode::getPercentageSAH(const std::span<Triangle> triangles, const std::span<size_t> indices, const Axis axis, const Range span, float percentage)
+{
+	const float splitThreshold = span.min + abs(span.max - span.min) * percentage;
+	const auto split = std::lower_bound(indices.begin(), indices.end(), splitThreshold, [axis, triangles](size_t a, float b) { return triangles[a].boundingBox().min[(int)axis] < b; });
+
+	const size_t splitIndex = std::distance(indices.begin(), split);
+	const std::span<size_t> leftIndices = indices.subspan(0, splitIndex);
+	const std::span<size_t> rightIndices = indices.subspan(splitIndex, indices.size() - splitIndex);
+
+	const float sah = getAABB(triangles, leftIndices).surfaceArea() * leftIndices.size() + getAABB(triangles, rightIndices).surfaceArea() * rightIndices.size();
+
+	return splitPoint{ sah, splitIndex, axis };
+}
+
+BVH::splitPoint BVH::BvhNode::getSAHSplitPoint(const std::span<Triangle> triangles, const std::span<size_t> indices, const Axis axis, const Range span)
+{
+	auto getSAH = [&](float percentage) { return getPercentageSAH(triangles, indices, axis, span, percentage); };
+
+	const BVH::splitPoint quarter = getSAH(.25f);
+	const BVH::splitPoint middle = getSAH(.5f);
+	const BVH::splitPoint threeQuarters = getSAH(.75f);
+	return BVH::splitPoint::best(BVH::splitPoint::best(quarter, middle), threeQuarters);
+}
+
+Range BVH::BvhNode::getSortedListAxisRange(Triangle &least, Triangle &most, BVH::Axis axis)
+{
+	const AABB3 boxMin = least.boundingBox();
+	const AABB3 boxMax = most.boundingBox();
+	return { .min = boxMin.min[int(axis)], .max = boxMax.max[int(axis)] };
+}
+
+void BVH::BvhNode::split(size_t startIndex, std::span<Triangle> triangles, splitPoint split, BvhVector &nodes)
 {
 	//the left node will be after the last node of the vector
 	leftNode = nodes.size();

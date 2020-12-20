@@ -58,11 +58,11 @@ namespace
 		return vec3::lerp(white, blue, t);
 	}
 
-	vec3 sceneColor(const std::vector<Triangle> &triangles, const BvhVector &bvh, const ray &currentRay, float r1, float r2, int depth = 0)
+	vec3 sceneColor(const BVH& bvh, const ray &currentRay, float r1, float r2, int depth = 0)
 	{
 		hitRecord record;
 
-		if (bvh.front().hit(triangles, bvh, currentRay, .0001f, 10000.0f, record))
+		if (bvh.hit(currentRay, .0001f, 10000.0f, record))
 		{
 			vec3 attenuation;
 			ray scatteredRay;
@@ -70,7 +70,7 @@ namespace
 
 			if (depth < maxBounces && record.material->scatter(currentRay, record, attenuation, scatteredRay, r1, r2))
 			{
-				return emitted + attenuation * sceneColor(triangles, bvh, scatteredRay, r1, r2, depth + 1);
+				return emitted + attenuation * sceneColor(bvh, scatteredRay, r1, r2, depth + 1);
 			}
 			else
 			{
@@ -91,22 +91,18 @@ namespace
 		config.distanceToFocus = .4f;
 		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 90.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
 
-		return ModelLoader::loadModel("_assets/robot.obj", new Lambertian(new ImageTexture("_assets/robot.jpg")));
+		return ModelLoader::loadModel("_assets/robot.obj");
 	}
 }
 
-PathTracer::PathTracer(PathTracerConfig config)
+PathTracer::PathTracer(PathTracerConfig config) : bvh(triangleScene(config), new Lambertian(new ImageTexture("_assets/robot.jpg")))
 {
 	threads.resize(std::thread::hardware_concurrency() - 1); // -1 because the main thread is also counted
 
 	image = new color[(size_t)config.xDim * config.yDim];
 
-	triangles = triangleScene(config);
-	const size_t triangleNumber = triangles.size();
+	const size_t triangleNumber = bvh.triangleCount();
 	Logger::LogMessageFormatted("Model successfully loaded! Model has %u triangles!", triangleNumber);
-	
-	bvh.resize(2);
-	bvh[0] = BvhNode(0U, std::numeric_limits<float>::max(), triangles, bvh);
 
 	Randomizer::createRandom(int(config.samples));
 
@@ -130,11 +126,11 @@ void PathTracer::run(PathTracerConfig config)
 	size_t heightPerThread = config.yDim;
 	for (std::thread &thread : threads)
 	{
-		thread = std::thread(&PathTracer::trace, this, std::ref(config), std::ref(triangles), std::ref(bvh));
+		thread = std::thread(&PathTracer::trace, this, std::ref(config), std::ref(bvh));
 	}
 
 	//raytracing on this core as well
-	trace(config, triangles, bvh);
+	trace(config, bvh);
 
 	//join threads once this core is done
 	for (std::thread &thread : threads)
@@ -163,7 +159,7 @@ void PathTracer::updateScreen(const PathTracerConfig &config)
 	}
 }
 
-void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &triangles, const BvhVector &bvh)
+void PathTracer::trace(const PathTracerConfig &config, const BVH& bvh)
 {
 	float xDimF = float(config.xDim);
 	float yDimF = float(config.yDim);
@@ -201,7 +197,7 @@ void PathTracer::trace(const PathTracerConfig &config, std::vector<Triangle> &tr
 						currentRay.direction.normalize();
 						float _;
 						vec3 sampleRandom = Randomizer::getRandom(s);
-						col += sceneColor(triangles, bvh, currentRay, modf(sampleRandom.x() + noise1, &_), modf(sampleRandom.y() + noise2, &_));
+						col += sceneColor(bvh, currentRay, modf(sampleRandom.x() + noise1, &_), modf(sampleRandom.y() + noise2, &_));
 					}
 					col /= float(config.samples);
 

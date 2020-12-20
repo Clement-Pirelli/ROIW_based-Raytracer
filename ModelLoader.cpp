@@ -9,7 +9,7 @@
 
 std::unordered_map<std::string, std::vector<Triangle>> ModelLoader::models = std::unordered_map<std::string, std::vector<Triangle>>();
 
-std::vector<Triangle> &ModelLoader::loadModel(const char *filePath, Material *material)
+std::vector<Triangle> &ModelLoader::loadModel(const char *filePath)
 {
 	std::string filePathStr = std::string(filePath);
 	if (models.count(filePathStr)) 
@@ -62,7 +62,7 @@ std::vector<Triangle> &ModelLoader::loadModel(const char *filePath, Material *ma
 	std::vector<Triangle> triangles;
 	for(int i = 0; i < vertices.size(); i+=3)
 	{
-		triangles.push_back(Triangle(vertices.data()+i, material));
+		triangles.push_back(Triangle(vertices.data()+i));
 	}
 
 	models[filePathStr] = triangles;

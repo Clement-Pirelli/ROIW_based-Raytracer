@@ -41,12 +41,11 @@ private:
 	void run(PathTracerConfig config);
 	void updateScreen(const PathTracerConfig &config);
 
-	void trace(const PathTracerConfig &config, std::vector<Triangle> &triangles, const BvhVector &bvh);
+	void trace(const PathTracerConfig &config, const BVH& bvh);
 
 
 	//resources
-	BvhVector bvh;
-	std::vector<Triangle> triangles;
+	BVH bvh;
 	color *image = nullptr;
 	std::atomic<uint32_t> tileCounter = 0;
 
