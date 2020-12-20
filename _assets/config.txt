@@ -1,6 +1,6 @@
-x:500
-y:500
+x:1000
+y:1000
 spp:10
 window:y
 tiles:10
-writetofile:n
+writetofile:y

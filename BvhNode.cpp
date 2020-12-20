@@ -66,7 +66,7 @@ namespace
 		const std::span<size_t> leftIndices = indices.subspan(0, splitIndex);
 		const std::span<size_t> rightIndices = indices.subspan(splitIndex, indices.size() - splitIndex);
 
-		const float sah = getAABB(triangles, indices).surfaceArea() * leftIndices.size() + getAABB(triangles, indices).surfaceArea() * rightIndices.size();
+		const float sah = getAABB(triangles, leftIndices).surfaceArea() * leftIndices.size() + getAABB(triangles, rightIndices).surfaceArea() * rightIndices.size();
 		
 		return splitPoint{ sah, splitIndex, axis };
 	}
