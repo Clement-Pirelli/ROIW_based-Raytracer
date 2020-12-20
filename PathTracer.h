@@ -5,6 +5,30 @@
 #include <thread>
 #include "Triangle.h"
 
+#include "ConstantMedium.h"
+#include "AllMaterials.h"
+
+struct PathTracerConfig;
+struct Scene
+{
+	Scene(PathTracerConfig &config);
+
+	bool hit(const ray &givenRay, float minT, float maxT, hitRecord &record) const
+	{
+		return bvh.hit(givenRay, minT, maxT, record);
+	}
+
+	size_t triangleCount() const
+	{
+		return bvh.triangleCount();
+	}
+
+private:
+
+	BVH bvh;
+};
+
+
 struct color;
 class RenderToWindow;
 
@@ -41,11 +65,11 @@ private:
 	void run(PathTracerConfig config);
 	void updateScreen(const PathTracerConfig &config);
 
-	void trace(const PathTracerConfig &config, const BVH& bvh);
+	void trace(const PathTracerConfig &config, const Scene& scene);
 
 
 	//resources
-	BVH bvh;
+	Scene scene;
 	color *image = nullptr;
 	std::atomic<uint32_t> tileCounter = 0;
 

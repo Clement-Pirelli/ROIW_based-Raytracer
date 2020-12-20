@@ -176,9 +176,6 @@
     <ClInclude Include="DiffuseLight.h" />
     <ClInclude Include="Files.h" />
     <ClInclude Include="FlatTexture.h" />
-    <ClInclude Include="FlipNormals.h" />
-    <ClInclude Include="Hitable.h" />
-    <ClInclude Include="HitableList.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="ImageTexture.h" />
     <ClInclude Include="Lambertian.h" />

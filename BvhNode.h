@@ -37,6 +37,12 @@ public:
 		return result;
 	}
 
+	[[nodiscard]]
+	AABB3 boundingBox() const 
+	{
+		return nodes.front().boundingBox();
+	}
+
 private:
 
 	BVH() = default;

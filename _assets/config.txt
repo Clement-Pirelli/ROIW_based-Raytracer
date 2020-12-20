@@ -1,6 +1,6 @@
 x:800
 y:800
-spp:10
+spp:100
 window:y
 tiles:10
 writetofile:y

@@ -3,7 +3,7 @@
 #include "Material.h"
 #include "randUtils.h"
 
-float schlickApproximation(float angleCosine, float refractionIndex)
+inline float schlickApproximation(float angleCosine, float refractionIndex)
 {
 	float r0 = (1.0f - refractionIndex) / (1.0f + refractionIndex);
 	r0 *= r0;

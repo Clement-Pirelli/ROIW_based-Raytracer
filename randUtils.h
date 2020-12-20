@@ -5,6 +5,8 @@
 #include <cmath>
 #include <random>
 
+constexpr float pi = 3.14f;
+
 inline float drand48() {
 	return static_cast<float>(rand()) / RAND_MAX;
 }
@@ -22,7 +24,7 @@ inline vec3 mapRectToCosineHemisphere(const vec3 &n, float u, float v)
     vec3 b2 = vec3(b, signZ + n.y() * n.y() * a, -n.y());
 
     // remap uv to cosine distributed points on the hemisphere around n
-    float phi = 2.0f * 3.14f * u;
+    float phi = 2.0f * pi * u;
     float cosTheta = sqrt(v);
     float sinTheta = sqrt(1.0f - v);
     return ((b1 * cosf(phi) + b2 * sinf(phi)) * cosTheta + n * sinTheta).normalized();
@@ -36,6 +38,17 @@ inline vec3 randInUnitSphere()
 		point = vec3(drand48(), drand48(), drand48()) * 2.0f - vec3(1.0f, 1.0f, 1.0f);
 	} while (point.squaredLength() >= 1.0f);
 	return point;
+}
+
+inline vec3 randOnUnitSphere(float firstRandom, float secondRandom)
+{
+	const float lambda = acosf(2 * firstRandom - 1.0f) - (pi / 2.0f);
+	const float phi = 2.0f * pi * secondRandom;
+	return vec3{ 
+		cosf(lambda) * cosf(phi), 
+		cosf(lambda) * sinf(phi), 
+		sinf(lambda)
+	};
 }
 
 inline vec3 randInUnitDisk()

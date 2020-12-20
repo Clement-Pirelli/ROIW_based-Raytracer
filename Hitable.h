@@ -9,7 +9,6 @@ struct hitRecord
 {
 	float distance = {};
 	vec3 point = {};
-	vec3 exitPoint = {};
 	vec3 normal = {};
 	Material *material = nullptr;
 	float u = {}, v = {};

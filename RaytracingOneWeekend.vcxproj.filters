@@ -22,9 +22,6 @@
     <Filter Include="Header Files\Hitables">
       <UniqueIdentifier>{1def207c-1873-486c-8cf0-c473229b9c5c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Hitables">
-      <UniqueIdentifier>{1f7c31bb-fcce-4627-9b81-418f5583d6f9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Textures">
       <UniqueIdentifier>{08377952-4ede-43f0-a389-60cfc76f33e7}</UniqueIdentifier>
     </Filter>
@@ -38,9 +35,6 @@
     </ClCompile>
     <ClCompile Include="BMPWriter.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Triangle.cpp">
-      <Filter>Source Files\Hitables</Filter>
     </ClCompile>
     <ClCompile Include="ModelLoader.cpp">
       <Filter>Source Files</Filter>
@@ -72,6 +66,9 @@
     <ClCompile Include="BvhNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ray.h">
@@ -88,12 +85,6 @@
     </ClInclude>
     <ClInclude Include="randUtils.h">
       <Filter>Header Files\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Hitable.h">
-      <Filter>Header Files\Hitables</Filter>
-    </ClInclude>
-    <ClInclude Include="HitableList.h">
-      <Filter>Header Files\Hitables</Filter>
     </ClInclude>
     <ClInclude Include="Lambertian.h">
       <Filter>Header Files\Materials</Filter>
@@ -129,12 +120,6 @@
       <Filter>Header Files\Textures</Filter>
     </ClInclude>
     <ClInclude Include="ConstantMedium.h">
-      <Filter>Header Files\Hitables</Filter>
-    </ClInclude>
-    <ClInclude Include="FlipNormals.h">
-      <Filter>Header Files\Hitables</Filter>
-    </ClInclude>
-    <ClInclude Include="Triangle.h">
       <Filter>Header Files\Hitables</Filter>
     </ClInclude>
     <ClInclude Include="tiny_obj_loader.h">
@@ -181,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="ConfigParser.h">
       <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
