@@ -58,7 +58,7 @@ BVH::BvhNode::BvhNode(size_t startIndex, float parentSAH, std::span<Triangle> tr
 	for (size_t i = 0; i < 3; i++)
 	{
 		const Axis currentAxis = Axis(i);
-		auto sortingPredicate = [&](int leftIndex, int rightIndex)->bool
+		auto sortingPredicate = [&](size_t leftIndex, size_t rightIndex)->bool
 		{
 			const AABB boxLeft = triangles[leftIndex].boundingBox();
 			const AABB boxRight = triangles[rightIndex].boundingBox();
@@ -80,7 +80,7 @@ BVH::BvhNode::BvhNode(size_t startIndex, float parentSAH, std::span<Triangle> tr
 	if(bestSplitPoint.sah >= parentSAH || triangles.size() <= 2 || bestSplitPoint.index == 0 || bestSplitPoint.index == triangles.size())
 	{
 		box = getAABB(triangles);
-		count = triangles.size();
+		count = static_cast<int>(triangles.size());
 		triangleIndex = startIndex;
 	} else 
 	{

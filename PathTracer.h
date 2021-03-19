@@ -11,7 +11,7 @@
 struct PathTracerConfig;
 struct Scene
 {
-	Scene(PathTracerConfig &config);
+	Scene(const PathTracerConfig &config);
 
 	bool hit(const ray &givenRay, float minT, float maxT, hitRecord &record) const
 	{
@@ -28,30 +28,35 @@ private:
 	BVH bvh;
 };
 
-
 struct color;
 class RenderToWindow;
 
 struct PathTracerConfig
 {
 	//image variables
-	size_t xDim = 0;
-	size_t yDim = 0;
-	size_t samples = 0;
-	size_t dimTileAmount = 0;
-	size_t tileWidth = 0;
-	size_t tileHeight = 0;
-	size_t totalTileAmount = 0;
+	size_t xDim{};
+	size_t yDim{};
+	size_t samples{};
+	size_t dimTileAmount{};
+	size_t tileWidth{};
+	size_t tileHeight{};
+	size_t totalTileAmount{};
 
 	//camera
-	vec3 lookFrom = vec3();
-	vec3 lookAt = vec3();
-	float distanceToFocus = .0f;
-	float aperture = .0f;
-	Camera camera = Camera();
+	vec3 lookFrom{};
+	vec3 lookAt{};
+	float distanceToFocus{};
+	float aperture{};
+	Camera camera{};
 
-	bool renderingToScreen : 1 = false;
-	bool writeToFile : 1 = false;
+	std::string modelPath{};
+	std::string albedoPath{};
+	std::string emissivePath{};
+	std::string normalPath{};
+	std::string roughnessPath{};
+
+	bool renderingToScreen : 1 {};
+	bool writeToFile : 1 {};
 };
 
 class PathTracer

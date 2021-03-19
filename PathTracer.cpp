@@ -7,7 +7,6 @@
 #include "ray.h"
 #include "randUtils.h"
 #include "Randomizer.h"
-#include "Lambertian.h"
 #include <atomic>
 #include "Logger.h"
 #include "FlatTexture.h"
@@ -16,6 +15,8 @@
 #include "ImageTexture.h"
 #include "Time.h"
 #include "BlueNoise.h"
+
+#include "PBR.h"
 
 #pragma warning(disable : 6385)
 namespace
@@ -52,10 +53,10 @@ namespace
 
 	vec3 sky(const ray &currentRay)
 	{
-		float t = .5f * (currentRay.direction.y() + 1.0f);
-		vec3 white = vec3(1.0f, 1.0f, 1.0f);
-		vec3 blue = vec3(.5f, .7f, 1.0f);
-		return vec3::lerp(white, blue, t);
+		const float t = .5f * (currentRay.direction.y() + 1.0f);
+		const vec3 grey = vec3(1.0f, 1.0f, 1.0f) * .1f;
+		const vec3 blue = vec3(.5f, .7f, 1.0f) * .1f;
+		return vec3::lerp(grey, blue, t);
 	}
 
 	vec3 sceneColor(const Scene& scene, const ray &currentRay, float r1, float r2, int depth = 0)
@@ -82,17 +83,6 @@ namespace
 			return sky(currentRay);
 		}
 	}
-
-	std::vector<Triangle> &triangleScene(PathTracerConfig &config)
-	{
-		config.lookAt = vec3(.0f, 8.0f, .0f);
-		config.lookFrom = vec3(-5.0f, 12.0f, -7.0f).rotatedY(6.283272f * -.5f);
-		config.aperture = .0f;
-		config.distanceToFocus = .4f;
-		config.camera = Camera(config.lookFrom, config.lookAt, vec3(.0f, 1.0f, .0f), 90.0f, config.xDim / float(config.yDim), config.aperture, config.distanceToFocus);
-
-		return ModelLoader::loadModel("_assets/robot.obj");
-	}
 }
 
 PathTracer::PathTracer(PathTracerConfig config) : scene(config)
@@ -112,7 +102,7 @@ PathTracer::PathTracer(PathTracerConfig config) : scene(config)
 
 	run(config);
 
-	if (config.renderingToScreen) delete screen;
+	delete screen;
 	delete[] image;
 }
 
@@ -231,8 +221,14 @@ void PathTracer::trace(const PathTracerConfig &config, const Scene& scene)
 	}
 }
 
-Scene::Scene(PathTracerConfig &config) : 
-	bvh(triangleScene(config), new Lambertian(new ImageTexture("_assets/robot.jpg")))
+Scene::Scene(const PathTracerConfig &config) 
+	: bvh(ModelLoader::loadModel(config.modelPath.c_str())
+	, new PBRMaterial(
+		new ImageTexture(config.albedoPath.c_str()), 
+		new ImageTexture(config.emissivePath.c_str()), 
+		new ImageTexture(config.normalPath.c_str()), 
+		new ImageTexture(config.roughnessPath.c_str())
+	))
 {
 
 }

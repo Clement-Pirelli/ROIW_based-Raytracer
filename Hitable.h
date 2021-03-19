@@ -10,6 +10,8 @@ struct hitRecord
 	float distance = {};
 	vec3 point = {};
 	vec3 normal = {};
+	vec3 tangent = {};
+	vec3 bitangent = {};
 	Material *material = nullptr;
 	float u = {}, v = {};
 };

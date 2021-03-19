@@ -15,7 +15,7 @@ struct vec
 	static_assert(N != 0, "vector must have at least 1 dimension!");
 
 #pragma region macro definitions
-#define COMPOUND_VEC_TO_VEC_OPERATOR(op) vec<N>& operator op(const vec<N> &other)	\
+#define COMPOUND_VEC_TO_VEC_OPERATOR(op) constexpr vec<N>& operator op(const vec<N> &other)	\
 	{																				\
 		for (size_t i = 0; i < N; i++)												\
 		{																			\
@@ -24,7 +24,7 @@ struct vec
 		return *this;																\
 	}
 
-#define COMPOUND_VEC_TO_FLOAT_OPERATOR(op) vec<N>& operator op(float other)			\
+#define COMPOUND_VEC_TO_FLOAT_OPERATOR(op) constexpr vec<N>& operator op(float other)			\
 	{																				\
 		for (size_t i = 0; i < N; i++)												\
 		{																			\
@@ -33,7 +33,7 @@ struct vec
 		return *this;																\
 	}
 
-#define VEC_TO_VEC_OPERATOR(op) [[nodiscard]] vec<N> operator op(vec<N> other) const\
+#define VEC_TO_VEC_OPERATOR(op) [[nodiscard]] constexpr vec<N> operator op(vec<N> other) const\
 	{																				\
 		vec<N> result = {};															\
 		for (size_t i = 0; i < N; i++)												\
@@ -43,7 +43,7 @@ struct vec
 		return result;																\
 	}
 
-#define VEC_TO_FLOAT_OPERATOR(op) [[nodiscard]] vec<N> operator op(float other)const\
+#define VEC_TO_FLOAT_OPERATOR(op) [[nodiscard]] constexpr vec<N> operator op(float other)const\
 	{																				\
 		vec<N> result = {};															\
 		for (size_t i = 0; i < N; i++)												\

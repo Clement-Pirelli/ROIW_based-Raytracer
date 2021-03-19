@@ -184,6 +184,7 @@
     <ClInclude Include="Metal.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="PathTracer.h" />
+    <ClInclude Include="PBR.h" />
     <ClInclude Include="Randomizer.h" />
     <ClInclude Include="randUtils.h" />
     <ClInclude Include="ray.h" />

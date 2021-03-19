@@ -9,7 +9,7 @@
 
 std::unordered_map<std::string, std::vector<Triangle>> ModelLoader::models = std::unordered_map<std::string, std::vector<Triangle>>();
 
-std::vector<Triangle> &ModelLoader::loadModel(const char *filePath)
+std::vector<Triangle> ModelLoader::loadModel(const char *filePath)
 {
 	std::string filePathStr = std::string(filePath);
 	if (models.count(filePathStr)) 

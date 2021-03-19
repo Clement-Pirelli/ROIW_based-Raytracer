@@ -19,7 +19,7 @@ class BVH
 {
 public:
 
-	BVH(std::vector<Triangle> &givenTriangles, Material *givenMaterial) : triangles(givenTriangles)
+	BVH(std::vector<Triangle> &&givenTriangles, Material *givenMaterial) : triangles(std::move(givenTriangles))
 	{
 		nodes.reserve(triangles.size() / 3);
 		nodes.resize(2);
@@ -103,7 +103,7 @@ private:
 	};
 
 	BvhVector nodes;
-	std::vector<Triangle> &triangles;
+	std::vector<Triangle> triangles;
 	std::vector<int> triangleIndices;
 	Material *material = nullptr;
 };
